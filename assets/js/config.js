@@ -33,12 +33,12 @@ window.HBH_CONFIG = {
                   text-message / copy fallback.
 
      If a send fails for ANY reason, the site never loses the lead: the customer
-     is shown their full invoice with one-tap "Text us a copy" and "Copy
+     is shown their full invoice with one-tap "Email us a copy" and "Copy
      details" buttons, so the request still reaches you.
      ---------------------------------------------------------------------- */
   notify: {
     provider: 'web3forms',
-    accessKey: '',                 // ← PASTE YOUR WEB3FORMS ACCESS KEY HERE
+    accessKey: '4e570307-a509-43fe-b1e5-08a6c06533d3',
     endpoint: '',                  // formspree / custom endpoint URL
     subject: 'New booking request — Hookah By Hov'
   },

@@ -11,44 +11,52 @@ server required.
 
 ---
 
-## ⚠️ One step before you go live
+## How a booking reaches you
 
-Getting bookings emailed to **Hookahbyhov@gmail.com** needs one key pasted in.
-It takes about two minutes:
+**This is live and needs nothing further.** When a customer hits **Submit**,
+the booking is emailed straight to **Hookahbyhov@gmail.com** through Web3Forms,
+using the access key already set in `assets/js/config.js`.
 
-1. Go to **https://web3forms.com** and enter **Hookahbyhov@gmail.com**. They
-   email you an *access key* — no account, no password, free. The key is tied to
-   that address, which is what makes the bookings land there.
-2. Open `assets/js/config.js` and paste it in:
+The email arrives with everything as separate labelled fields — name, email,
+phone, service, hookah count, date and time, address, distance, any promo code,
+tobacco request, notes and the estimated total — plus the full itemised invoice
+as readable text. **Replying to that email goes straight back to the customer**,
+because their address is set as the reply-to.
 
-   ```js
-   notify: {
-     provider: 'web3forms',
-     accessKey: 'paste-your-access-key-here',   // ← the only line to change
-     endpoint: '',
-     subject: 'New booking request — Hookah By Hov'
-   },
-   ```
+Email is a **required** field on the form, so you always have a written record
+and a second way to reach someone if the phone number is wrong. The customer
+sees a confirmation saying you'll call them to confirm.
 
-3. Save, upload, done. Every booking now arrives in your inbox automatically the
-   moment someone hits **Send my request** — with the full itemised invoice,
-   their contact details and any promo code they used.
+> **Note:** the booking email goes to **you**, not to the customer — so the site
+> never promises them a confirmation email it can't deliver. If you'd like them
+> to get an automatic acknowledgement too, turn on **Autoresponder** in your
+> Web3Forms dashboard; no code change needed. Otherwise just hit reply on the
+> notification and it lands in their inbox.
 
-**Until you do that**, nothing breaks and no lead is lost. The customer still
-sees their finished estimate and two one-tap buttons — **“Email us a copy”**
-(opens their mail app, already addressed to Hookahbyhov@gmail.com with the whole
-invoice written out) and **“Text us a copy”** (same thing to 818-807-8008). They
-just hit send. Those buttons also catch any request that fails to send because
-of a bad connection, so a booking can never silently vanish.
+### If a send ever fails
+
+Bad signal, aeroplane mode, an outage — the customer doesn't lose their work.
+The confirmation switches to an apology and shows an **“Email us a copy”**
+button that opens their mail app pre-addressed to Hookahbyhov@gmail.com with the
+whole invoice already written, plus a **“Copy details”** button. Those buttons
+are hidden when the send succeeds, so a normal booking ends on a clean
+confirmation.
+
+### Changing the destination address
+
+The Web3Forms key is what routes the mail. To send bookings somewhere else, get
+a new key at web3forms.com using that address and replace `accessKey` in
+`assets/js/config.js`. Web3Forms access keys are meant to be public — they sit in
+the page by design — so there's no harm in it living in the code.
 
 ### Other notification options
 
 | `provider`   | What to set                                    | Notes |
 |--------------|-----------------------------------------------|-------|
-| `web3forms`  | `accessKey`                                    | **Recommended.** Free, no account, emails you each request. |
+| `web3forms`  | `accessKey`                                    | **In use.** Free, no account, emails you each request. |
 | `formspree`  | `endpoint` (e.g. `https://formspree.io/f/xxx`) | Free tier, 50 submissions/month. |
 | `custom`     | `endpoint`                                     | Receives a JSON `POST` of the whole booking — use this to wire up a text message (Twilio), a spreadsheet, Zapier, a CRM, etc. |
-| `none`       | —                                              | Skips sending; goes straight to the email/text fallback. |
+| `none`       | —                                              | Skips sending; goes straight to the email fallback. |
 
 Want a **text message** instead of an email when a booking comes in? Two easy
 routes: point a **Zapier** or **Make.com** webhook at `provider: 'custom'` and

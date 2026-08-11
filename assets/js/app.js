@@ -432,7 +432,8 @@
     if (n === 4) {
       if (!state.name.trim()) return flagInvalid($('#name'), 'We need a name for the booking.');
       if (state.phone.replace(/\D/g, '').length < 10) return flagInvalid($('#phone'), 'Add a 10-digit phone number so we can reach you.');
-      if (state.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.email)) {
+      if (!state.email.trim()) return flagInvalid($('#email'), 'We need an email address to confirm your booking.');
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.email.trim())) {
         return flagInvalid($('#email'), 'That email address looks incomplete.');
       }
       if (!state.age) return flagInvalid(ageCheck, 'Please confirm everyone using the hookahs is 21 or older.');
@@ -543,7 +544,7 @@
 
   function updateTotalBarCta() {
     const cta = $('#total-bar-cta');
-    cta.textContent = step >= steps.length ? 'Send request' : 'Continue';
+    cta.textContent = step >= steps.length ? 'Submit' : 'Continue';
   }
 
   $('#total-bar-cta').addEventListener('click', () => {
@@ -662,17 +663,45 @@
     try {
       if (n.provider === 'web3forms') {
         if (!n.accessKey) return { ok: false, skipped: true };
+
+        /* Web3Forms puts every field it receives into the email, so these are
+           sent as separate readable fields rather than one blob. `name` and
+           `email` are its own conventions — `email` becomes the reply-to, so
+           replying to the notification goes straight back to the customer. */
+        const fields = {
+          access_key: n.accessKey,
+          subject: `${n.subject} — ${payload.reference}`,
+          from_name: 'Hookah By Hov website',
+          name: payload.customer.name,
+          email: payload.customer.email,
+          phone: payload.customer.phone,
+          message: payload.invoiceText,
+
+          'Reference': payload.reference,
+          'Service': payload.service === 'catering'
+            ? `Catering (${CFG.pricing.catering.serviceHours}-hour service)`
+            : 'Delivery',
+          'Hookahs': String(payload.quantity),
+          'Event date': payload.dateFormatted,
+          'Time': payload.serviceWindow || payload.timeFormatted,
+          'Address': addressLine() || '—',
+          'Estimated total': P.money(payload.total),
+          'Preferred contact': payload.customer.preferredContact
+        };
+
+        if (payload.distanceMiles != null) fields['Distance from 91405'] = payload.distanceMiles + ' mi';
+        if (payload.holiday) fields['Holiday'] = payload.holiday;
+        if (payload.sameDay) fields['Same-day booking'] = 'Yes';
+        if (payload.promo) {
+          fields['Promo code'] = `${payload.promo.code} (${payload.promo.label}, ${P.money(payload.promo.amount)} off)`;
+        }
+        if (payload.tobaccoRequest) fields['Tobacco request'] = payload.tobaccoRequest;
+        if (payload.notes) fields['Notes'] = payload.notes;
+
         const res = await fetch('https://api.web3forms.com/submit', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-          body: JSON.stringify({
-            access_key: n.accessKey,
-            subject: `${n.subject} — ${payload.reference}`,
-            from_name: payload.customer.name || 'Website booking',
-            replyto: payload.customer.email || '',
-            message: payload.invoiceText,
-            booking: JSON.stringify(payload, null, 2)
-          })
+          body: JSON.stringify(fields)
         });
         return { ok: res.ok };
       }
@@ -710,7 +739,7 @@
     if (sending) return;
 
     /* honeypot — bots fill hidden fields, people don't */
-    if (form.querySelector('[name="_website"]').value) return;
+    if (form.querySelector('[name="botcheck"]').value) return;
 
     for (let s = 1; s <= steps.length; s++) {
       if (!validateStep(s)) { goToStep(s); return; }
@@ -745,10 +774,13 @@
 
     $('#success-title').textContent = delivered ? 'Request sent' : 'Almost there';
     $('#success-sub').textContent = delivered
-      ? `We've got it. ${CFG.business.name.split(' ')[0]} will reach out shortly to lock in your date and confirm the final total.`
-      : CFG.business.email
-        ? `Your quote is ready below — tap “Email us a copy” or “Text us a copy” to send it straight to us, and we'll take it from there.`
-        : `Your quote is ready below — tap “Text us a copy” to send it straight to ${CFG.business.phone} and we'll take it from there.`;
+      ? `We've got your booking${state.name ? ', ' + state.name.trim().split(/\s+/)[0] : ''}. ` +
+        `We'll call you at ${state.phone} shortly to confirm the details and lock in your date.`
+      : `We couldn't send that automatically — your connection may have dropped. ` +
+        `Tap “Email us a copy” below and it'll go through, or call us on ${CFG.business.phone}.`;
+
+    /* Nothing to fall back to when it went through — keep the confirmation clean. */
+    $('#success-actions').hidden = delivered;
 
     $('#success-ref').textContent = payload.reference;
 
@@ -774,9 +806,6 @@
         ? `<p class="invoice-note"><strong>Tobacco request:</strong> ${escapeHtml(state.tobacco.trim())} — priced separately based on the amount requested and current market price. We'll confirm the cost when we contact you.</p>`
         : '') +
       `<p class="invoice-note">No payment has been taken. We'll confirm every detail before anything is charged.</p>`;
-
-    const sms = `sms:${CFG.business.phoneE164}?&body=${encodeURIComponent(payload.invoiceText)}`;
-    $('#success-text').setAttribute('href', sms);
 
     /* Opens their mail app with everything already written — the reliable
        fallback when the automatic send didn't go through. */
