@@ -579,6 +579,28 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .chips-select label:has(input:checked){background:rgba(211,169,79,.16);border-color:var(--gold-400);color:var(--gold-100)}
 .chips-select label:has(input:focus-visible){outline:2px solid var(--gold-300);outline-offset:3px}
 
+/* promo code */
+.promo-row{display:flex;gap:.6rem;align-items:stretch}
+.promo-row input{
+  flex:1;min-width:0;text-transform:uppercase;letter-spacing:.14em;font-size:.95rem;
+}
+.promo-row input::placeholder{text-transform:none;letter-spacing:normal}
+.promo-row .btn{flex:none;padding-inline:1.35rem}
+.promo-status:not(:empty){margin-top:.65rem}
+.promo-msg{
+  display:inline-flex;align-items:flex-start;gap:.5rem;
+  font-size:.85rem;line-height:1.5;animation:popIn .28s var(--ease);
+}
+.promo-msg svg{width:15px;height:15px;flex:none;margin-top:.2rem}
+.promo-msg b{font-weight:500}
+.promo-good{color:#8fd6a9}
+.promo-bad{color:#ee9e9e}
+.promo-warn{color:#f0c073}
+
+/* discount lines read as money coming off, everywhere they appear */
+.summary-lines .line-discount dt,.summary-lines .line-discount dd{color:var(--ok)}
+.invoice .line-discount span{color:var(--ok)!important}
+
 /* checkbox */
 .checkbox{display:flex;gap:.8rem;align-items:flex-start;cursor:pointer;font-size:.9rem;color:var(--text-soft);margin:1.6rem 0 .5rem}
 .checkbox input{
@@ -835,6 +857,8 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
   .field-row .field{margin-bottom:1.35rem}
   .step-nav{gap:.6rem}
   .step-nav .btn{flex:1;min-width:0}
+  .promo-row{flex-direction:column}
+  .promo-row .btn{width:100%}
   .stepper .step-label{display:none}
   .stepper button{padding-bottom:.65rem}
   .success-actions .btn{flex:1 1 100%}

@@ -71,6 +71,7 @@
     tobacco: '', notes: '',
     name: '', phone: '', email: '',
     contactPref: 'Text',
+    promo: '',
     age: false
   };
   let qtyTouched = false;
@@ -316,6 +317,61 @@
   $$('input[name="contactPref"]').forEach(r => {
     r.addEventListener('change', () => { if (r.checked) state.contactPref = r.value; });
   });
+  /* ---------------- promo code ---------------- */
+
+  const promoField  = $('#promo-field');
+  const promoInput  = $('#promo');
+  const promoStatus = $('#promo-status');
+
+  /* No codes configured means nothing to type — don't tease an empty box. */
+  promoField.hidden = !P.anyPromoCodes();
+
+  function applyPromo() {
+    state.promo = promoInput.value.trim();
+    render();
+  }
+
+  function renderPromoStatus() {
+    if (!state.promo) {
+      promoStatus.innerHTML = '';
+      promoInput.classList.remove('is-invalid');
+      return;
+    }
+    const q = lastQuote || P.quote(state);
+
+    if (q.flags.promoError) {
+      promoInput.classList.add('is-invalid');
+      promoStatus.innerHTML =
+        `<span class="promo-msg promo-bad">${escapeHtml(q.flags.promoError)}</span>`;
+      return;
+    }
+
+    promoInput.classList.remove('is-invalid');
+    if (q.flags.promoNote) {
+      promoStatus.innerHTML = `<span class="promo-msg promo-warn">${escapeHtml(q.flags.promoNote)}</span>`;
+      return;
+    }
+    if (q.flags.promo) {
+      promoStatus.innerHTML =
+        `<span class="promo-msg promo-good">` +
+        `<svg aria-hidden="true"><use href="#icon-check"></use></svg>` +
+        `<b>${escapeHtml(q.flags.promo.code)}</b> applied — ${escapeHtml(q.flags.promo.label)}, ` +
+        `saving ${P.money(q.flags.promo.amount)}.</span>`;
+    }
+  }
+
+  $('#promo-apply').addEventListener('click', applyPromo);
+  promoInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); applyPromo(); }
+  });
+  promoInput.addEventListener('input', () => {
+    /* Clear a stale verdict while they retype, but don't re-judge every key. */
+    if (!promoInput.value.trim()) { state.promo = ''; render(); }
+    promoStatus.innerHTML = '';
+    promoInput.classList.remove('is-invalid');
+  });
+  promoInput.addEventListener('blur', applyPromo);
+
   const ageCheck = $('#age-check');
   ageCheck.addEventListener('change', () => {
     state.age = ageCheck.checked;
@@ -405,6 +461,15 @@
 
   let lastTotal = null;
 
+  /* One place decides how a line item's money reads, so the summary, the
+     invoice and the text message can never disagree. */
+  function lineValue(line) {
+    if (line.amount === null) return 'Quoted separately';
+    if (line.amount < 0) return '−' + P.money(-line.amount);
+    if (line.amount === 0) return 'Free';
+    return P.money(line.amount);
+  }
+
   function render() {
     const q = P.quote(state);
     lastQuote = q;
@@ -416,11 +481,9 @@
     const lines = $('#summary-lines');
     lines.innerHTML = q.lines.map(l => {
       const cls = l.type ? ` line-${l.type}` : '';
-      const value = l.amount === null ? 'Quoted separately'
-        : (l.amount === 0 ? 'Free' : P.money(l.amount));
       return `<div class="line${cls}">
         <dt>${escapeHtml(l.label)}${l.detail ? `<small>${escapeHtml(l.detail)}</small>` : ''}</dt>
-        <dd>${value}</dd>
+        <dd>${lineValue(l)}</dd>
       </div>`;
     }).join('') || '<div class="line line-muted"><dt>No hookahs selected yet</dt><dd>—</dd></div>';
 
@@ -447,6 +510,8 @@
     $('#total-bar-amount').textContent = P.money(q.total);
     $('#total-bar-label').textContent =
       `${q.service === 'catering' ? 'Catering' : 'Delivery'} · ${q.quantity} hookah${q.quantity === 1 ? '' : 's'}`;
+
+    renderPromoStatus();
   }
 
   function escapeHtml(str) {
@@ -537,10 +602,13 @@
     L.push('');
     L.push('ESTIMATE');
     q.lines.forEach(l => {
-      const value = l.amount === null ? 'quoted separately' : (l.amount === 0 ? 'free' : P.money(l.amount));
-      L.push('  ' + l.label + (l.detail ? ' (' + l.detail + ')' : '') + ' — ' + value);
+      L.push('  ' + l.label + (l.detail ? ' (' + l.detail + ')' : '') + ' — ' + lineValue(l));
     });
     L.push('  TOTAL: ' + P.money(q.total));
+    if (q.flags.promo) {
+      L.push('  (promo ' + q.flags.promo.code + ' applied — ' +
+        q.flags.promo.label + ', ' + P.money(q.flags.promo.amount) + ' off)');
+    }
     L.push('');
     if (state.tobacco.trim()) L.push('TOBACCO REQUEST: ' + state.tobacco.trim());
     if (state.notes.trim()) L.push('NOTES: ' + state.notes.trim());
@@ -573,6 +641,7 @@
       holiday: q.flags.holiday || q.flags.holidayInfo || null,
       sameDay: Boolean(q.flags.sameDay || q.flags.sameDayInfo),
       lineItems: q.lines.map(l => ({ label: l.label, detail: l.detail || '', amount: l.amount })),
+      promo: q.flags.promo || null,
       total: q.total,
       tobaccoRequest: state.tobacco.trim(),
       notes: state.notes.trim(),
@@ -677,13 +746,15 @@
     $('#success-title').textContent = delivered ? 'Request sent' : 'Almost there';
     $('#success-sub').textContent = delivered
       ? `We've got it. ${CFG.business.name.split(' ')[0]} will reach out shortly to lock in your date and confirm the final total.`
-      : `Your quote is ready below — tap “Text us a copy” to send it straight to ${CFG.business.phone} and we'll take it from there.`;
+      : CFG.business.email
+        ? `Your quote is ready below — tap “Email us a copy” or “Text us a copy” to send it straight to us, and we'll take it from there.`
+        : `Your quote is ready below — tap “Text us a copy” to send it straight to ${CFG.business.phone} and we'll take it from there.`;
 
     $('#success-ref').textContent = payload.reference;
 
     const rows = q.lines.map(l => {
-      const value = l.amount === null ? 'Quoted separately' : (l.amount === 0 ? 'Free' : P.money(l.amount));
-      return `<div class="line"><span>${escapeHtml(l.label)}${l.detail ? ' · ' + escapeHtml(l.detail) : ''}</span><span>${value}</span></div>`;
+      const cls = l.type === 'discount' ? ' line-discount' : '';
+      return `<div class="line${cls}"><span>${escapeHtml(l.label)}${l.detail ? ' · ' + escapeHtml(l.detail) : ''}</span><span>${lineValue(l)}</span></div>`;
     }).join('');
 
     const header = [
@@ -706,6 +777,19 @@
 
     const sms = `sms:${CFG.business.phoneE164}?&body=${encodeURIComponent(payload.invoiceText)}`;
     $('#success-text').setAttribute('href', sms);
+
+    /* Opens their mail app with everything already written — the reliable
+       fallback when the automatic send didn't go through. */
+    const emailBtn = $('#success-email');
+    if (CFG.business.email) {
+      emailBtn.hidden = false;
+      emailBtn.setAttribute('href',
+        `mailto:${CFG.business.email}` +
+        `?subject=${encodeURIComponent('Booking request ' + payload.reference + ' — ' + (state.name || 'Website'))}` +
+        `&body=${encodeURIComponent(payload.invoiceText)}`);
+    } else {
+      emailBtn.hidden = true;
+    }
 
     successEl.hidden = false;
     document.body.classList.add('is-locked');

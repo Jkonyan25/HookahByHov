@@ -130,6 +130,78 @@
     return cateringTiers(qty).reduce((s, t) => s + t.amount, 0) / qty;
   }
 
+  /* ---------------- promo codes ---------------- */
+
+  /* Codes are matched case-insensitively and ignore surrounding spaces, so
+     "  summer25 " finds SUMMER25. */
+  function findPromo(code) {
+    const codes = CFG.promoCodes || {};
+    const wanted = String(code || '').trim().toUpperCase();
+    if (!wanted) return null;
+    const match = Object.keys(codes).find(k => k.trim().toUpperCase() === wanted);
+    return match ? Object.assign({ code: match.trim().toUpperCase() }, codes[match]) : null;
+  }
+
+  function anyPromoCodes() {
+    return Object.keys(CFG.promoCodes || {}).length > 0;
+  }
+
+  function serviceName(s) {
+    return s === 'delivery' ? 'delivery' : 'catering';
+  }
+
+  /* ctx = { service, quantity, hookahSubtotal }
+     → { ok:true, def } | { ok:false, reason } */
+  function validatePromo(code, ctx) {
+    const def = findPromo(code);
+    if (!def) return { ok: false, reason: "That code isn't valid — double-check the spelling." };
+
+    const today = todayIso();
+    if (def.startsOn && today < def.startsOn) {
+      return { ok: false, reason: `That code isn't active until ${formatDate(def.startsOn)}.` };
+    }
+    if (def.expires && today > def.expires) {
+      return { ok: false, reason: `That code expired on ${formatDate(def.expires)}.` };
+    }
+    if (def.services && def.services.length && def.services.indexOf(ctx.service) === -1) {
+      return { ok: false, reason: `That code only applies to ${def.services.map(serviceName).join(' or ')} bookings.` };
+    }
+    if (def.minQuantity && ctx.quantity < def.minQuantity) {
+      const short = def.minQuantity - ctx.quantity;
+      return { ok: false, reason: `That code needs at least ${def.minQuantity} hookahs — add ${short} more.` };
+    }
+    if (def.minSubtotal && ctx.hookahSubtotal < def.minSubtotal) {
+      return { ok: false, reason: `That code applies to bookings of ${money(def.minSubtotal)} or more.` };
+    }
+    return { ok: true, def };
+  }
+
+  /* What a validated code is worth against this booking.
+     percent      → off the hookahs only (not fees or travel)
+     amount       → off the running total
+     freeDelivery → waives the travel fee */
+  function promoDiscount(def, amounts) {
+    let value = 0;
+    if (def.type === 'percent') {
+      value = amounts.hookahSubtotal * (def.value / 100);
+    } else if (def.type === 'amount') {
+      value = def.value;
+    } else if (def.type === 'freeDelivery') {
+      value = amounts.travelFee;
+    }
+    /* never discount past zero */
+    return Math.max(0, Math.min(Math.round(value), amounts.runningTotal));
+  }
+
+  /* Human-readable summary of a code, used on the estimate line. */
+  function promoLabel(def) {
+    if (def.label) return def.label;
+    if (def.type === 'percent') return `${def.value}% off`;
+    if (def.type === 'amount') return `${money(def.value)} off`;
+    if (def.type === 'freeDelivery') return 'Free delivery';
+    return 'Discount';
+  }
+
   /* ---------------- the quote ---------------- */
 
   /**
@@ -149,6 +221,11 @@
     let blocked = false;
     let blockReason = '';
 
+    /* Tracked separately so a promo can target just the hookahs or just the
+       travel fee rather than the whole bill. */
+    let hookahSubtotal = 0;
+    let travelFee = 0;
+
     /* --- hookahs --- */
     if (service === 'catering') {
       cateringTiers(qty).forEach(t => {
@@ -162,6 +239,7 @@
           amount: t.amount
         });
         total += t.amount;
+        hookahSubtotal += t.amount;
       });
     } else {
       const amount = qty * CFG.pricing.delivery.perHookah;
@@ -174,6 +252,7 @@
         });
       }
       total += amount;
+      hookahSubtotal += amount;
     }
 
     /* --- catering-only surcharges --- */
@@ -224,12 +303,44 @@
           type: location.fee === 0 ? 'free' : 'fee'
         });
         total += location.fee;
+        travelFee = location.fee;
       } else if (location.status === 'far') {
         blocked = true;
         blockReason = `${location.zip}${location.city ? ' (' + location.city + ')' : ''} is about ` +
           `${Math.round(location.miles)} miles from our Van Nuys base — past our ` +
           `${CFG.pricing.delivery.bands[CFG.pricing.delivery.bands.length - 1].maxMiles}-mile ` +
           `delivery range. Give us a call and we'll see what we can do.`;
+      }
+    }
+
+    /* --- promo code --- */
+    if (state.promo && String(state.promo).trim()) {
+      const check = validatePromo(state.promo, {
+        service, quantity: qty, hookahSubtotal
+      });
+
+      if (check.ok) {
+        const amount = promoDiscount(check.def, {
+          hookahSubtotal, travelFee, runningTotal: total
+        });
+        const label = promoLabel(check.def);
+        flags.promo = { code: check.def.code, label, amount };
+        if (amount > 0) {
+          lines.push({
+            key: 'promo',
+            label: `Promo ${check.def.code}`,
+            detail: label,
+            amount: -amount,
+            type: 'discount'
+          });
+          total -= amount;
+        } else {
+          /* Valid, but worth nothing here — e.g. free delivery inside the
+             free zone. Say so instead of showing a silent $0 line. */
+          flags.promoNote = `${check.def.code} applied — no discount to take off this booking.`;
+        }
+      } else {
+        flags.promoError = check.reason;
       }
     }
 
@@ -262,6 +373,7 @@
 
   window.HBH_PRICING = {
     quote, locate, cateringTiers, effectiveRate, haversine,
+    findPromo, anyPromoCodes, validatePromo, promoDiscount, promoLabel,
     money, todayIso, addDaysIso, parseIso, formatDate, formatTime, endTime
   };
 })();

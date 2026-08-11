@@ -13,39 +13,96 @@ server required.
 
 ## ⚠️ One step before you go live
 
-The booking form is fully working, but it needs **your** notification address
-before requests can be emailed to you. It takes about two minutes:
+Getting bookings emailed to **Hookahbyhov@gmail.com** needs one key pasted in.
+It takes about two minutes:
 
-1. Go to **https://web3forms.com** and enter your email. They give you an
-   *access key* — no account, no password, free.
-2. Open `assets/js/config.js` and fill in the `notify` block:
+1. Go to **https://web3forms.com** and enter **Hookahbyhov@gmail.com**. They
+   email you an *access key* — no account, no password, free. The key is tied to
+   that address, which is what makes the bookings land there.
+2. Open `assets/js/config.js` and paste it in:
 
    ```js
    notify: {
      provider: 'web3forms',
-     accessKey: 'paste-your-access-key-here',
+     accessKey: 'paste-your-access-key-here',   // ← the only line to change
      endpoint: '',
      subject: 'New booking request — Hookah By Hov'
    },
    ```
 
-3. Save, upload, done. Every booking now arrives in your inbox with the full
-   invoice.
+3. Save, upload, done. Every booking now arrives in your inbox automatically the
+   moment someone hits **Send my request** — with the full itemised invoice,
+   their contact details and any promo code they used.
 
-**Until you do that**, nothing breaks and no lead is lost — the customer still
-sees their finished estimate and gets a **“Text us a copy”** button that opens
-their messaging app with the whole invoice pre-written and addressed to
-818-807-8008. They just hit send. That same fallback also catches any request
-that fails to send because of a bad connection.
+**Until you do that**, nothing breaks and no lead is lost. The customer still
+sees their finished estimate and two one-tap buttons — **“Email us a copy”**
+(opens their mail app, already addressed to Hookahbyhov@gmail.com with the whole
+invoice written out) and **“Text us a copy”** (same thing to 818-807-8008). They
+just hit send. Those buttons also catch any request that fails to send because
+of a bad connection, so a booking can never silently vanish.
 
 ### Other notification options
 
 | `provider`   | What to set                                    | Notes |
 |--------------|-----------------------------------------------|-------|
-| `web3forms`  | `accessKey`                                    | Easiest. Emails you each request. |
-| `formspree`  | `endpoint` (e.g. `https://formspree.io/f/xxx`) | Free tier available. |
-| `custom`     | `endpoint`                                     | Receives a JSON `POST` of the whole booking — use this to wire up SMS (Twilio), a spreadsheet, Zapier, a CRM, etc. |
-| `none`       | —                                              | Skips sending; goes straight to the text/copy fallback. |
+| `web3forms`  | `accessKey`                                    | **Recommended.** Free, no account, emails you each request. |
+| `formspree`  | `endpoint` (e.g. `https://formspree.io/f/xxx`) | Free tier, 50 submissions/month. |
+| `custom`     | `endpoint`                                     | Receives a JSON `POST` of the whole booking — use this to wire up a text message (Twilio), a spreadsheet, Zapier, a CRM, etc. |
+| `none`       | —                                              | Skips sending; goes straight to the email/text fallback. |
+
+Want a **text message** instead of an email when a booking comes in? Two easy
+routes: point a **Zapier** or **Make.com** webhook at `provider: 'custom'` and
+have it send you an SMS, or just turn on email-to-text forwarding in Gmail.
+
+---
+
+## Promo codes
+
+Add a code to `assets/js/config.js` and a **Promo code** box appears on the
+booking form automatically. Remove them all and the box disappears again, so
+customers never see a field that can't work.
+
+```js
+promoCodes: {
+  'SUMMER25': { type: 'percent', value: 10, label: '10% off hookahs' },
+  'VIP100':   { type: 'amount',  value: 100, label: '$100 off',
+                services: ['catering'], minQuantity: 15 },
+  'FREEDROP': { type: 'freeDelivery', label: 'Free delivery',
+                services: ['delivery'], expires: '2026-12-31' }
+},
+```
+
+Three kinds of discount:
+
+| `type`         | What it does |
+|----------------|--------------|
+| `percent`      | Takes `value`% off **the hookahs only** — holiday, same-day and travel fees stay full price |
+| `amount`       | Takes `$value` straight off the total |
+| `freeDelivery` | Waives the delivery travel fee |
+
+Optional restrictions on any code:
+
+| Setting       | Effect |
+|---------------|--------|
+| `label`       | What the customer sees on their estimate |
+| `services`    | `['catering']` or `['delivery']` — leave it out for both |
+| `minQuantity` | Smallest hookah count the code works on |
+| `minSubtotal` | Smallest hookah subtotal in dollars |
+| `startsOn`    | `'YYYY-MM-DD'` — not valid before this day |
+| `expires`     | `'YYYY-MM-DD'` — not valid after this day |
+
+Codes are matched ignoring case and spaces, so `SUMMER25`, `summer25` and
+`" summer25 "` are all the same code. A rejected code says exactly why —
+*"That code needs at least 15 hookahs — add 5 more"* — instead of a flat "invalid",
+which turns a dead end into an upsell. A discount can never take a total below
+zero, and the code used is shown on your copy of the booking.
+
+**One thing to know:** these codes live in the page, so someone determined could
+read them in the browser's source. That's fine here because **nothing is charged
+online** — you see the code on every request and confirm the price yourself
+before taking a cent. Treat them as friendly discounts rather than secrets. If
+you ever start taking payment on the site, the codes should move to a server
+that checks them, and that's a bigger change.
 
 ---
 
@@ -140,7 +197,7 @@ couldn't verify the distance and lets the request through for you to confirm.
 ```
 index.html                 the whole page
 assets/css/styles.css      theme, layout, responsive rules
-assets/js/config.js        ← business details, pricing, notifications
+assets/js/config.js        ← business details, pricing, promo codes, notifications
 assets/js/zipdata.js       ZIP centroids for the delivery radius
 assets/js/holidays.js      holiday calendar (any year, calculated)
 assets/js/pricing.js       quote engine — pure maths, no DOM

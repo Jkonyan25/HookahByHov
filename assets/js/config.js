@@ -12,7 +12,7 @@ window.HBH_CONFIG = {
     name: 'Hookah By Hov',
     phone: '818-807-8008',
     phoneE164: '+18188078008',
-    email: '',                     // optional — shown/used only if set
+    email: 'Hookahbyhov@gmail.com',
     baseZip: '91405',              // Van Nuys, CA — delivery distances measured from here
     timezone: 'America/Los_Angeles'
   },
@@ -37,8 +37,8 @@ window.HBH_CONFIG = {
      details" buttons, so the request still reaches you.
      ---------------------------------------------------------------------- */
   notify: {
-    provider: 'none',
-    accessKey: '',                 // web3forms access key
+    provider: 'web3forms',
+    accessKey: '',                 // ← PASTE YOUR WEB3FORMS ACCESS KEY HERE
     endpoint: '',                  // formspree / custom endpoint URL
     subject: 'New booking request — Hookah By Hov'
   },
@@ -85,6 +85,39 @@ window.HBH_CONFIG = {
     },
     /* Names from the built-in list to ignore, e.g. ['Juneteenth']. */
     exclude: []
+  },
+
+  /* ----------------------------------------------------------------------
+     PROMO CODES
+     ----------------------------------------------------------------------
+     Add a code below and the "Promo code" box appears on the booking form
+     automatically. Remove them all and the box disappears again. Codes are
+     matched ignoring case and spaces, so SUMMER25 = summer25.
+
+     type: 'percent'      value = % off the hookahs (fees and travel excluded)
+           'amount'       value = flat dollars off the total
+           'freeDelivery' waives the delivery travel fee
+
+     Optional restrictions on any code:
+       label       what the customer sees on their estimate
+       services    ['catering'] or ['delivery'] — omit for both
+       minQuantity smallest hookah count the code works on
+       minSubtotal smallest hookah subtotal (dollars) the code works on
+       startsOn    'YYYY-MM-DD' — not valid before this day
+       expires     'YYYY-MM-DD' — not valid after this day (based on the day
+                   they book, not their event date)
+
+     Heads up: these codes live in the page, so a determined person could read
+     them in the browser's source. That's fine here because nothing is charged
+     online — you see the code on every request and confirm the price yourself
+     before taking a cent. Treat them as friendly discounts, not secrets.
+
+     To switch a code on, delete the two slashes at the start of its line.
+     ---------------------------------------------------------------------- */
+  promoCodes: {
+    // 'SUMMER25': { type: 'percent', value: 10, label: '10% off hookahs' },
+    // 'VIP100':   { type: 'amount', value: 100, label: '$100 off', services: ['catering'], minQuantity: 15 },
+    // 'FREEDROP': { type: 'freeDelivery', label: 'Free delivery', services: ['delivery'], expires: '2026-12-31' },
   },
 
   /* ----------------------------------------------------------------------

@@ -463,6 +463,16 @@
             </div>
           </div>
 
+          <div class="field" id="promo-field" hidden>
+            <label class="field-label" for="promo">Promo code <span class="field-optional">optional</span></label>
+            <div class="promo-row">
+              <input type="text" id="promo" name="promo" placeholder="Enter code"
+                     autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="32">
+              <button type="button" class="btn btn-outline" id="promo-apply">Apply</button>
+            </div>
+            <div class="promo-status" id="promo-status" aria-live="polite"></div>
+          </div>
+
           <label class="checkbox">
             <input type="checkbox" id="age-check" name="age" required>
             <span>I confirm I am 21 or older and that all guests using the hookahs will be 21+.</span>
@@ -531,6 +541,7 @@
     <div class="invoice" id="invoice"></div>
     <div class="success-actions">
       <a class="btn btn-gold" id="success-text" href="#">Text us a copy</a>
+      <a class="btn btn-outline" id="success-email" href="#">Email us a copy</a>
       <button type="button" class="btn btn-outline" id="success-copy">Copy details</button>
     </div>
     <p class="fineprint center">Reference <span id="success-ref">—</span> · Questions? Call <a href="tel:+18188078008">818-807-8008</a></p>
