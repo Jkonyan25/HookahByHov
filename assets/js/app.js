@@ -315,45 +315,48 @@
     addrHelp.textContent = 'Start typing and pick your address from the list.';
   }
 
+  /* Tells the customer their own city and whether a travel fee applies —
+     nothing about where we're coming from or how far that is. */
   function renderZip() {
     const box = $('#zip-result');
-    if (state.service !== 'delivery' || (!state.zip && !state.coords)) { box.innerHTML = ''; return; }
+    if (!state.zip && !state.coords) { box.innerHTML = ''; return; }
 
     const loc = state.coords
       ? P.locateByCoords(state.coords.lat, state.coords.lng, state.coords.label)
       : P.locate(state.zip);
-    const where = loc.exact ? (state.city || loc.city || 'That address') : (loc.city || loc.zip);
+    const where = (state.coords && state.city) || loc.city || 'That address';
+    const isDelivery = state.service === 'delivery';
+    const feeWord = isDelivery ? 'delivery fee' : 'destination fee';
+
     const tpl = (cls, icon, html) =>
       `<div class="zip-box ${cls}"><svg aria-hidden="true"><use href="#icon-${icon}"></use></svg><div>${html}</div></div>`;
 
-    if (loc.status === 'invalid' || (loc.status === 'empty')) { box.innerHTML = ''; return; }
+    if (loc.status === 'invalid' || loc.status === 'empty') { box.innerHTML = ''; return; }
 
     if (loc.status === 'unknown') {
       box.innerHTML = tpl('zip-fee', 'pin',
-        `We couldn't match ZIP <b>${loc.zip}</b> to our delivery map. Send the request anyway — ` +
-        `we'll confirm the distance and any travel fee when we call.`);
-      return;
-    }
-    if (loc.status === 'far') {
-      box.innerHTML = tpl('zip-bad', 'pin',
-        `<b>${escapeHtml(where)}</b> is about <b>${Math.round(loc.miles)} miles</b> out — beyond our ` +
-        `100-mile delivery range. Try catering instead, or ` +
-        `<a href="tel:${CFG.business.phoneE164}">call ${CFG.business.phone}</a>.`);
+        `We couldn't place ZIP <b>${escapeHtml(loc.zip)}</b> automatically. Send the request ` +
+        `anyway — we'll confirm any ${feeWord} when we call.`);
       return;
     }
 
-    /* An address picked from the map is measured to the building; a bare ZIP
-       is measured to the middle of the ZIP. Say which, so the number is fair. */
-    const precision = loc.exact ? '' : ' (measured from the centre of your ZIP)';
+    if (loc.status === 'far') {
+      box.innerHTML = isDelivery
+        ? tpl('zip-bad', 'pin',
+            `<b>${escapeHtml(where)}</b> is outside the area we deliver to. Try catering instead, or ` +
+            `<a href="tel:${CFG.business.phoneE164}">call ${CFG.business.phone}</a>.`)
+        : tpl('zip-fee', 'pin',
+            `<b>${escapeHtml(where)}</b> is a longer trip than usual — we'll confirm the ` +
+            `destination fee when we call. Everything else in your estimate stands.`);
+      return;
+    }
 
     if (loc.fee === 0) {
       box.innerHTML = tpl('zip-ok', 'check',
-        `<b>${escapeHtml(where)}</b> is <b>${loc.miles.toFixed(1)} miles</b> from our Van Nuys base` +
-        `${precision} — inside the free delivery zone. <b>No travel fee.</b>`);
+        `<b>${escapeHtml(where)}</b> — <b>no ${feeWord}.</b> You're inside our standard service area.`);
     } else {
       box.innerHTML = tpl('zip-fee', 'pin',
-        `<b>${escapeHtml(where)}</b> is <b>${loc.miles.toFixed(1)} miles</b> out (${loc.band})` +
-        `${precision} — a <b>${P.money(loc.fee)}</b> delivery fee applies.`);
+        `<b>${escapeHtml(where)}</b> — a <b>${P.money(loc.fee)}</b> ${feeWord} applies.`);
     }
   }
 
@@ -704,9 +707,6 @@
       L.push('WINDOW: ' + P.formatTime(state.time) + ' – ' + P.endTime(state.time, CFG.pricing.catering.serviceHours));
     }
     if (addressLine()) L.push('ADDRESS: ' + addressLine());
-    if (q.meta.location && q.meta.location.status === 'ok') {
-      L.push('DISTANCE: ' + q.meta.location.miles.toFixed(1) + ' mi from 91405');
-    }
     L.push('');
     L.push('ESTIMATE');
     q.lines.forEach(l => {
@@ -796,7 +796,8 @@
           'Preferred contact': payload.customer.preferredContact
         };
 
-        if (payload.distanceMiles != null) fields['Distance from 91405'] = payload.distanceMiles + ' mi';
+        /* Owner-only: this never appears in the customer's copy of the quote. */
+        if (payload.distanceMiles != null) fields['Distance'] = payload.distanceMiles + ' mi';
         if (payload.holiday) fields['Holiday'] = payload.holiday;
         if (payload.sameDay) fields['Same-day booking'] = 'Yes';
         if (payload.promo) {
@@ -899,6 +900,19 @@
 
     /* Nothing to fall back to when it went through — keep the confirmation clean. */
     $('#success-actions').hidden = delivered;
+
+    /* Add ?debug=1 to the URL to see exactly why a send failed, without
+       opening the browser console. Customers never see this. */
+    const debugBox = $('#success-debug');
+    const debugOn = /[?&]debug=1\b/.test(window.location.search);
+    if (debugOn && !delivered) {
+      debugBox.textContent = 'Diagnostic: ' +
+        (result && result.skipped ? 'no access key configured'
+          : (result && result.reason) || 'the request never reached Web3Forms');
+      debugBox.hidden = false;
+    } else {
+      debugBox.hidden = true;
+    }
 
     $('#success-ref').textContent = payload.reference;
 

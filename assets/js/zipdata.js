@@ -1,6 +1,7 @@
 /* Auto-generated. Source: U.S. Census Bureau ZCTA (2010) internal points via
    OpenDataDE/State-zip-code-GeoJSON, joined with USPS city names.
-   Scope: every California ZIP within 200 miles of 91405 (Van Nuys, CA).
+   Scope: every California ZIP within roughly 200 miles of the Los Angeles area,
+   which covers the whole service radius with room to move the base ZIP.
    Format: "zip": [latitude, longitude, "City"]  */
 window.HBH_ZIP_DATA = {
   "89019":[35.7666,-115.7348,""],

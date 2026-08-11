@@ -45,9 +45,16 @@ sees a confirmation saying you'll call them to confirm.
    cached copy for a few minutes after a push. Open the site, view
    `assets/js/config.js` in the browser, and confirm `accessKey` is filled in.
    A hard refresh (Ctrl-Shift-R, or Cmd-Shift-R on a Mac) clears a stale copy.
-4. **Look at the browser console.** Right-click the page → Inspect → Console,
-   then submit a test. Any refusal from Web3Forms is printed there in full,
-   starting with `[Hookah By Hov]`.
+4. **Add `?debug=1` to the URL** — e.g. `hookahbyhov.com/?debug=1` — and submit a
+   test. If the send fails, the confirmation box shows the exact reason
+   Web3Forms gave, in plain sight. Customers never see this; it only appears
+   with the flag in the URL and only when something actually failed. The same
+   detail is also printed to the browser console (Inspect → Console) prefixed
+   with `[Hookah By Hov]`.
+
+**Catering and delivery submit through exactly the same code.** There is no
+separate path for either, so if one is arriving and the other isn't, the cause
+is on the mail side — spam filtering or key verification — not the form.
 
 The site no longer reports a booking as sent unless Web3Forms confirms it was
 delivered — if anything goes wrong the customer sees the fallback below instead
@@ -93,8 +100,7 @@ and instant.
 Add a key and the address box suggests real addresses as they type. Picking one
 fills in the city and ZIP automatically and measures the distance **from the
 actual building** rather than the middle of the ZIP code, so the delivery fee is
-right even for a big ZIP that straddles two bands. Van Nuys picked from the map
-reads *0.9 miles*; the same address by ZIP alone reads *0.0*.
+right even for a big ZIP that straddles two bands.
 
 **Setup**
 
@@ -119,7 +125,7 @@ step 4 matters. A restricted key is useless to anyone who copies it.
 - Fully keyboard accessible: arrow keys, Enter, Escape.
 - Editing the address by hand after picking one discards the exact coordinates
   and falls back to the ZIP, so a fee is never quoted for a building the
-  customer has typed away from. The estimate says which measurement it used.
+  customer has typed away from.
 - If the key is wrong, the API is unreachable, or billing lapses, it logs one
   clear console message and falls back to the ZIP lookup. **The form keeps
   working either way.**
@@ -132,9 +138,7 @@ The promo box sits at the bottom of the **Contact** step and is always visible.
 Until you add codes below, any code entered gets *"There aren't any promo codes
 running right now."*
 
-Add a code to `assets/js/config.js` and a **Promo code** box appears on the
-booking form automatically. Remove them all and the box disappears again, so
-customers never see a field that can't work.
+Add your codes to `assets/js/config.js`:
 
 ```js
 promoCodes: {
@@ -221,6 +225,11 @@ the pricing table, the booking form, the estimate and the FAQ.
 - **+$200** if the event date is a holiday
 - **+$200** for a same-day booking
 
+Catering also carries the same **travel/destination fee** as delivery (see
+below) — free locally, $50 or $100 further out. A catering job past the last
+band isn't blocked, unlike delivery; it says the fee will be confirmed by phone,
+since a big catering booking is worth a conversation rather than a dead end.
+
 Both are shown as their own line items, and both can apply at once. Holidays are
 worked out automatically for any year — fixed dates, floating ones (Thanksgiving,
 Memorial Day, Mother's Day…) and Easter — so the list never needs updating. Add
@@ -228,19 +237,33 @@ or remove dates in `config.holidays` if you want to tune it.
 
 ### Delivery — flat per hookah + travel
 
-**$60 per hookah**, any quantity, plus a travel fee measured from **91405**
-(Van Nuys):
+**$60 per hookah**, any quantity, plus the travel fee:
 
 | Distance      | Fee |
 |---------------|-----|
 | Within 25 mi  | Free |
 | 25 – 50 mi    | $50 |
 | 50 – 100 mi   | $100 |
-| Over 100 mi   | Out of range — the form asks them to call |
+| Over 100 mi   | Out of range for delivery — the form asks them to call |
 
-The customer types a ZIP and the site immediately tells them the distance and
-what it costs, or that they're too far out. Holiday and same-day fees do **not**
-apply to delivery.
+Holiday and same-day fees do **not** apply to delivery.
+
+### Your location stays private
+
+Distances are measured from `business.baseZip` in `assets/js/config.js`
+(currently **91331**). That value is used for maths only — **it never appears
+anywhere the customer can see**, and neither does the mileage.
+
+After someone enters their ZIP, the site tells them only their own city and
+whether a fee applies:
+
+> **Long Beach** — a **$50** destination fee applies.
+> **Pacoima** — no destination fee. You're inside our standard service area.
+
+The mileage is still included in the booking email to you, so you always know
+the real distance. To move the base later, change that one ZIP; nothing else
+needs touching. The bundled ZIP table covers 200 miles around the LA area, so
+any nearby base works without regenerating data.
 
 ### Specialty tobacco
 
@@ -253,9 +276,9 @@ the current market price, and that you'll confirm it when you contact them.
 
 ## How the distance check works
 
-`assets/js/zipdata.js` holds every California ZIP within 200 miles of 91405 —
-871 of them — with its official centroid. Distances are straight-line
-(great-circle) from the 91405 centroid, so a 34.2-mile reading is 34.2 miles as
+`assets/js/zipdata.js` holds 871 California ZIPs covering roughly 200 miles
+around the Los Angeles area, with its official centroid. Distances are straight-line
+(great-circle) from the base ZIP's centroid, so a 34-mile reading is 34 miles as
 the crow flies, not driving miles. It's instant, works offline, costs nothing,
 and needs no API key or billing account.
 

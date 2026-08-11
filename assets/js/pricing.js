@@ -95,10 +95,7 @@
         return { status: 'ok', zip: clean, city, miles, fee: band.fee, band: band.label };
       }
     }
-    return {
-      status: 'far', zip: clean, city, miles, fee: null,
-      band: 'Outside the ' + bands[bands.length - 1].maxMiles + '-mile service area'
-    };
+    return { status: 'far', zip: clean, city, miles, fee: null, band: 'Outside the service area' };
   }
 
   /* ---------------- hookah subtotal ---------------- */
@@ -150,7 +147,7 @@
     }
     return {
       status: 'far', zip: '', city: label || '', miles, fee: null, exact: true,
-      band: 'Outside the ' + bands[bands.length - 1].maxMiles + '-mile service area'
+      band: 'Outside the service area'
     };
   }
 
@@ -325,31 +322,37 @@
       if (date === todayIso()) flags.sameDayInfo = true;
     }
 
-    /* --- delivery travel --- */
+    /* --- travel / destination fee (both services) --- */
     let location = null;
-    if (service === 'delivery') {
+    if (state.zip || state.coords) {
       /* Exact coordinates from a picked address beat the ZIP centroid. */
       location = state.coords
         ? locateByCoords(state.coords.lat, state.coords.lng, state.coords.label)
         : locate(state.zip);
       flags.location = location;
 
+      const where = (state.coords && state.city) || location.city || '';
+
       if (location.status === 'ok') {
         lines.push({
           key: 'travel',
-          label: 'Delivery',
-          detail: `${location.miles.toFixed(1)} mi · ${location.band}`,
+          label: service === 'delivery' ? 'Delivery' : 'Destination fee',
+          detail: where || 'Travel',
           amount: location.fee,
           type: location.fee === 0 ? 'free' : 'fee'
         });
         total += location.fee;
         travelFee = location.fee;
       } else if (location.status === 'far') {
-        blocked = true;
-        blockReason = `${location.zip}${location.city ? ' (' + location.city + ')' : ''} is about ` +
-          `${Math.round(location.miles)} miles from our Van Nuys base — past our ` +
-          `${CFG.pricing.delivery.bands[CFG.pricing.delivery.bands.length - 1].maxMiles}-mile ` +
-          `delivery range. Give us a call and we'll see what we can do.`;
+        if (service === 'delivery') {
+          blocked = true;
+          blockReason = `${where || 'That address'} is outside the area we deliver to. ` +
+            `Give us a call and we'll see what we can do.`;
+        } else {
+          /* Catering travels further than delivery does, so a long trip is a
+             conversation rather than a dead end — quoted on the phone. */
+          flags.travelTBC = true;
+        }
       }
     }
 

@@ -112,9 +112,10 @@
     </nav>
 
     <div class="header-cta">
-      <a class="btn btn-ghost btn-phone" href="tel:+18188078008">
+      <a class="btn btn-ghost btn-phone" href="tel:+18188078008" aria-label="Call us on 818-807-8008">
         <svg aria-hidden="true"><use href="#icon-phone"></use></svg>
-        <span>818-807-8008</span>
+        <span class="phone-word" aria-hidden="true">Call Us</span>
+        <span class="phone-number" aria-hidden="true">818-807-8008</span>
       </a>
       <a class="btn btn-gold" href="#builder">Book now</a>
     </div>
@@ -204,7 +205,7 @@
         <p>Fully prepped hookahs delivered to your door, lit and ready to go. We drop off, you enjoy, and we come back for pickup — simple as that.</p>
         <ul class="ticks">
           <li><svg aria-hidden="true"><use href="#icon-check"></use></svg> Flat <strong>$60</strong> per hookah, any quantity</li>
-          <li><svg aria-hidden="true"><use href="#icon-check"></use></svg> <strong>Free delivery</strong> within 25 miles of Van Nuys (91405)</li>
+          <li><svg aria-hidden="true"><use href="#icon-check"></use></svg> <strong>Free delivery</strong> across our local service area</li>
           <li><svg aria-hidden="true"><use href="#icon-check"></use></svg> Coals, foil and extra bowl packed in</li>
           <li><svg aria-hidden="true"><use href="#icon-check"></use></svg> Arrives lit and smoking — zero setup</li>
           <li><svg aria-hidden="true"><use href="#icon-check"></use></svg> Pickup arranged when you're done</li>
@@ -249,7 +250,7 @@
 
       <div class="price-card reveal">
         <h3><svg aria-hidden="true"><use href="#icon-truck"></use></svg> Delivery rates</h3>
-        <p class="price-note">A flat rate per hookah, plus a travel fee based on how far you are from our Van Nuys base (91405).</p>
+        <p class="price-note">A flat rate per hookah, plus a travel fee if you're outside our local service area.</p>
         <div class="flat-rate">
           <span class="flat-rate-num">$60</span>
           <span class="flat-rate-label">per hookah<br>any quantity</span>
@@ -260,7 +261,7 @@
           <li><span>50 – 100 miles</span><b>+$100</b></li>
           <li><span>Over 100 miles</span><b>Call us</b></li>
         </ul>
-        <p class="fineprint">Enter your address in the builder and we'll measure the distance from 91405 automatically.</p>
+        <p class="fineprint">Enter your address in the builder and we'll tell you straight away whether a travel fee applies.</p>
       </div>
     </div>
   </div>
@@ -316,7 +317,7 @@
           </div>
           <div class="notice notice-info" data-service="delivery" hidden>
             <svg aria-hidden="true"><use href="#icon-pin"></use></svg>
-            <p><strong>Delivery is free within 25 miles</strong> of our Van Nuys base (91405). We deliver up to 100 miles out — travel fees for longer trips are shown before you submit.</p>
+            <p><strong>Delivery is free across our local service area.</strong> We travel further too — if your address falls outside it, the travel fee is shown before you submit.</p>
           </div>
 
           <div class="step-nav">
@@ -383,7 +384,7 @@
             </div>
             <div class="field field-zip">
               <label class="field-label" for="addr-zip">ZIP code</label>
-              <input type="text" id="addr-zip" name="zip" placeholder="91405" inputmode="numeric" maxlength="5" autocomplete="postal-code" aria-describedby="zip-result">
+              <input type="text" id="addr-zip" name="zip" placeholder="ZIP code" inputmode="numeric" maxlength="5" autocomplete="postal-code" aria-describedby="zip-result">
             </div>
           </div>
 
@@ -554,6 +555,7 @@
     <h2 id="success-title">Request sent</h2>
     <p class="success-sub" id="success-sub">We've got it. Hov will reach out shortly to lock in your date and confirm the final total.</p>
     <div class="invoice" id="invoice"></div>
+    <p class="success-debug" id="success-debug" hidden></p>
     <!-- Shown only if the automatic send fails, so a booking is never lost. -->
     <div class="success-actions" id="success-actions" hidden>
       <a class="btn btn-gold" id="success-email" href="#">Email us a copy</a>
@@ -625,7 +627,7 @@
       </details>
       <details class="reveal">
         <summary>How far do you deliver?</summary>
-        <p>Delivery is <strong>free within 25 miles</strong> of our Van Nuys base (91405). From 25 to 50 miles there's a $50 travel fee, and from 50 to 100 miles it's $100. Beyond 100 miles, give us a call at 818-807-8008 and we'll see what we can do.</p>
+        <p>Delivery is <strong>free across our local service area</strong>. Further out, a travel fee of $50 or $100 applies depending on the distance. Enter your address in the booking builder and it'll tell you exactly which applies — or give us a call at 818-807-8008.</p>
       </details>
       <details class="reveal">
         <summary>Can I request a specific tobacco brand or flavor?</summary>
@@ -668,7 +670,7 @@
       <svg class="footer-badge" aria-hidden="true"><use href="#icon-badge"></use></svg>
       <span class="brand-name">Hookah <em>by</em> Hov</span>
       <span class="brand-sub">Delivery <i>|</i> Catering <i>|</i> Events</span>
-      <p class="footer-est">Est. 2020 · Van Nuys, California</p>
+      <p class="footer-est">Est. 2020 · Los Angeles, California</p>
     </div>
     <div class="footer-col">
       <h4>Book</h4>

@@ -13,7 +13,10 @@ window.HBH_CONFIG = {
     phone: '818-807-8008',
     phoneE164: '+18188078008',
     email: 'Hookahbyhov@gmail.com',
-    baseZip: '91405',              // Van Nuys, CA — delivery distances measured from here
+    /* Travel distances are measured from here. Kept out of every customer-
+       facing string on purpose — the site only ever names their own city and
+       whether a travel fee applies, never this location or the mileage. */
+    baseZip: '91331',
     timezone: 'America/Los_Angeles'
   },
 
