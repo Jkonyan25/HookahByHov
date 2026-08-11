@@ -33,6 +33,26 @@ sees a confirmation saying you'll call them to confirm.
 > Web3Forms dashboard; no code change needed. Otherwise just hit reply on the
 > notification and it lands in their inbox.
 
+### Nothing arriving? Check these in order
+
+1. **Verify the access key.** When you create a key, Web3Forms emails
+   Hookahbyhov@gmail.com an activation link. **Until you click it, submissions
+   are accepted and silently dropped.** This is by far the most common cause.
+   Check the inbox — and the spam folder — for that email.
+2. **Check spam.** The first booking notification can land in spam. Open it and
+   mark *Not spam*, and ideally add `noreply@web3forms.com` to your contacts.
+3. **Make sure the live site actually has the key.** GitHub Pages can serve a
+   cached copy for a few minutes after a push. Open the site, view
+   `assets/js/config.js` in the browser, and confirm `accessKey` is filled in.
+   A hard refresh (Ctrl-Shift-R, or Cmd-Shift-R on a Mac) clears a stale copy.
+4. **Look at the browser console.** Right-click the page → Inspect → Console,
+   then submit a test. Any refusal from Web3Forms is printed there in full,
+   starting with `[Hookah By Hov]`.
+
+The site no longer reports a booking as sent unless Web3Forms confirms it was
+delivered — if anything goes wrong the customer sees the fallback below instead
+of a false confirmation.
+
 ### If a send ever fails
 
 Bad signal, aeroplane mode, an outage — the customer doesn't lose their work.
@@ -64,7 +84,53 @@ have it send you an SMS, or just turn on email-to-text forwarding in Gmail.
 
 ---
 
+## Google Maps address autocomplete (optional)
+
+Off by default. Without a key the address fields work as they always have — the
+customer types a ZIP and the distance comes from the built-in ZIP table, free
+and instant.
+
+Add a key and the address box suggests real addresses as they type. Picking one
+fills in the city and ZIP automatically and measures the distance **from the
+actual building** rather than the middle of the ZIP code, so the delivery fee is
+right even for a big ZIP that straddles two bands. Van Nuys picked from the map
+reads *0.9 miles*; the same address by ZIP alone reads *0.0*.
+
+**Setup**
+
+1. https://console.cloud.google.com → create a project
+2. Enable **Places API (New)**
+3. Credentials → Create credentials → API key
+4. **Restrict the key** — click it, set *Application restrictions* to **Websites**,
+   and add `hookahbyhov.com` and `www.hookahbyhov.com`. Then set *API
+   restrictions* to the Places API only.
+5. Enable billing on the project. Google's monthly free allowance comfortably
+   covers a booking form this size, but set a budget alert anyway.
+6. Paste the key into `maps.apiKey` in `assets/js/config.js`.
+
+The key sits in the page — unavoidable for browser maps, which is exactly why
+step 4 matters. A restricted key is useless to anyone who copies it.
+
+**How it behaves**
+
+- Suggestions are biased toward the service area, requested one per pause in
+  typing rather than per keystroke, and only after three characters — so it
+  stays cheap.
+- Fully keyboard accessible: arrow keys, Enter, Escape.
+- Editing the address by hand after picking one discards the exact coordinates
+  and falls back to the ZIP, so a fee is never quoted for a building the
+  customer has typed away from. The estimate says which measurement it used.
+- If the key is wrong, the API is unreachable, or billing lapses, it logs one
+  clear console message and falls back to the ZIP lookup. **The form keeps
+  working either way.**
+
+---
+
 ## Promo codes
+
+The promo box sits at the bottom of the **Contact** step and is always visible.
+Until you add codes below, any code entered gets *"There aren't any promo codes
+running right now."*
 
 Add a code to `assets/js/config.js` and a **Promo code** box appears on the
 booking form automatically. Remove them all and the box disappears again, so
@@ -207,6 +273,7 @@ index.html                 the whole page
 assets/css/styles.css      theme, layout, responsive rules
 assets/js/config.js        ← business details, pricing, promo codes, notifications
 assets/js/zipdata.js       ZIP centroids for the delivery radius
+assets/js/maps.js          Google Places address autocomplete (optional)
 assets/js/holidays.js      holiday calendar (any year, calculated)
 assets/js/pricing.js       quote engine — pure maths, no DOM
 assets/js/app.js           form, steps, validation, sending

@@ -68,6 +68,8 @@
     date: '',
     time: CFG.booking.defaultTime,
     street: '', city: '', zip: '',
+    coords: null,          // set only when an address is picked from Google
+    addressPicked: false,
     tobacco: '', notes: '',
     name: '', phone: '', email: '',
     contactPref: 'Text',
@@ -82,7 +84,6 @@
   const steps      = $$('.step', form);
   const stepBtns   = $$('#stepper button');
   const qtyInput   = $('#qty');
-  const qtyRange   = $('#qty-range');
   const dateInput  = $('#event-date');
   const timeInput  = $('#event-time');
   const zipInput   = $('#addr-zip');
@@ -107,7 +108,6 @@
     state.quantity = n;
 
     if (source !== 'input') qtyInput.value = n;
-    if (source !== 'range') qtyRange.value = Math.min(n, Number(qtyRange.max));
     $$('.qty-presets button').forEach(b => b.classList.toggle('is-on', Number(b.dataset.qty) === n));
     renderQtyHelp();
     render();
@@ -139,7 +139,6 @@
   $('#qty-plus').addEventListener('click',  () => { qtyTouched = true; setQuantity(state.quantity + 1); });
   qtyInput.addEventListener('input',  () => { qtyTouched = true; setQuantity(qtyInput.value, 'input'); });
   qtyInput.addEventListener('blur',   () => setQuantity(qtyInput.value));
-  qtyRange.addEventListener('input',  () => { qtyTouched = true; setQuantity(qtyRange.value, 'range'); });
   $$('.qty-presets button').forEach(btn => {
     btn.addEventListener('click', () => { qtyTouched = true; setQuantity(btn.dataset.qty); });
   });
@@ -239,22 +238,91 @@
   });
 
   /* ---------------- address ---------------- */
-  $('#addr-street').addEventListener('input', e => { state.street = e.target.value; });
-  $('#addr-city').addEventListener('input', e => { state.city = e.target.value; });
+
+  const streetInput = $('#addr-street');
+  const cityInput   = $('#addr-city');
+
+  /* Typing over a picked address invalidates its coordinates — fall back to
+     the ZIP so we never quote a fee for a building they've edited away from. */
+  function dropCoords() {
+    if (!state.coords) return;
+    state.coords = null;
+    state.addressPicked = false;
+    render();
+    renderZip();
+  }
+
+  streetInput.addEventListener('input', e => {
+    state.street = e.target.value;
+    streetInput.classList.remove('is-invalid');
+    dropCoords();
+  });
+  cityInput.addEventListener('input', e => {
+    state.city = e.target.value;
+    cityInput.classList.remove('is-invalid');
+    dropCoords();
+  });
 
   zipInput.addEventListener('input', e => {
     e.target.value = e.target.value.replace(/\D/g, '').slice(0, 5);
     state.zip = e.target.value;
     zipInput.classList.remove('is-invalid');
+    dropCoords();
     renderZip();
     render();
   });
 
+  /* ---------------- Google Places autocomplete (optional) ---------------- */
+
+  const addrHelp = $('#addr-help');
+
+  const autocomplete = window.HBH_MAPS.attach({
+    input: streetInput,
+    list: $('#addr-suggestions'),
+
+    onSelect(address) {
+      state.street = address.street;
+      state.city = address.city;
+      state.zip = address.zip;
+      state.addressPicked = true;
+      state.coords = (address.lat != null && address.lng != null)
+        ? { lat: address.lat, lng: address.lng, label: address.city || address.formatted }
+        : null;
+
+      streetInput.value = address.street;
+      cityInput.value = address.city;
+      zipInput.value = address.zip;
+      [streetInput, cityInput, zipInput].forEach(el => el.classList.remove('is-invalid'));
+
+      addrHelp.textContent = address.formatted || 'Address confirmed.';
+      render();
+      renderZip();
+    },
+
+    onStatus(status) {
+      if (status.state === 'unavailable') {
+        addrHelp.textContent = 'Street address, apartment or suite number.';
+      } else if (status.state === 'resolving') {
+        addrHelp.textContent = 'Looking that address up…';
+      } else if (status.state === 'error') {
+        addrHelp.textContent = "We couldn't read that address — please type it in.";
+      }
+    }
+  });
+
+  if (autocomplete.enabled) {
+    streetInput.setAttribute('autocomplete', 'off');
+    addrHelp.textContent = 'Start typing and pick your address from the list.';
+  }
+
   function renderZip() {
     const box = $('#zip-result');
-    if (state.service !== 'delivery' || !state.zip) { box.innerHTML = ''; return; }
+    if (state.service !== 'delivery' || (!state.zip && !state.coords)) { box.innerHTML = ''; return; }
 
-    const loc = P.locate(state.zip);
+    const loc = state.coords
+      ? P.locateByCoords(state.coords.lat, state.coords.lng, state.coords.label)
+      : P.locate(state.zip);
+    const where = loc.exact ? (state.city || loc.city || 'That address') : (loc.city || loc.zip);
     const tpl = (cls, icon, html) =>
       `<div class="zip-box ${cls}"><svg aria-hidden="true"><use href="#icon-${icon}"></use></svg><div>${html}</div></div>`;
 
@@ -268,19 +336,24 @@
     }
     if (loc.status === 'far') {
       box.innerHTML = tpl('zip-bad', 'pin',
-        `<b>${loc.city || loc.zip}</b> is about <b>${Math.round(loc.miles)} miles</b> out — beyond our ` +
+        `<b>${escapeHtml(where)}</b> is about <b>${Math.round(loc.miles)} miles</b> out — beyond our ` +
         `100-mile delivery range. Try catering instead, or ` +
         `<a href="tel:${CFG.business.phoneE164}">call ${CFG.business.phone}</a>.`);
       return;
     }
+
+    /* An address picked from the map is measured to the building; a bare ZIP
+       is measured to the middle of the ZIP. Say which, so the number is fair. */
+    const precision = loc.exact ? '' : ' (measured from the centre of your ZIP)';
+
     if (loc.fee === 0) {
       box.innerHTML = tpl('zip-ok', 'check',
-        `<b>${loc.city || loc.zip}</b> is <b>${loc.miles.toFixed(1)} miles</b> from our Van Nuys base — ` +
-        `inside the free delivery zone. <b>No travel fee.</b>`);
+        `<b>${escapeHtml(where)}</b> is <b>${loc.miles.toFixed(1)} miles</b> from our Van Nuys base` +
+        `${precision} — inside the free delivery zone. <b>No travel fee.</b>`);
     } else {
       box.innerHTML = tpl('zip-fee', 'pin',
-        `<b>${loc.city || loc.zip}</b> is <b>${loc.miles.toFixed(1)} miles</b> out (${loc.band}) — ` +
-        `a <b>${P.money(loc.fee)}</b> delivery fee applies.`);
+        `<b>${escapeHtml(where)}</b> is <b>${loc.miles.toFixed(1)} miles</b> out (${loc.band})` +
+        `${precision} — a <b>${P.money(loc.fee)}</b> delivery fee applies.`);
     }
   }
 
@@ -298,13 +371,36 @@
       render();
     });
   });
+  const notesInput = $('#notes');
+
+  /* Tracks whether the estimate currently shows a tobacco row, so we only
+     redraw when that changes rather than on every keystroke. */
+  let tobaccoLineShown = false;
+
+  function countChars(input, counter) {
+    const max = Number(input.getAttribute('maxlength'));
+    const used = input.value.length;
+    counter.textContent = `${used}/${max}`;
+    counter.classList.toggle('is-full', used >= max);
+  }
+
   tobaccoInput.addEventListener('input', () => {
     state.tobacco = tobaccoInput.value;
     const lower = tobaccoInput.value.toLowerCase();
     $$('#flavor-chips button').forEach(c => c.classList.toggle('is-on', lower.includes(c.dataset.chip.toLowerCase())));
-    render();
+    countChars(tobaccoInput, $('#tobacco-count'));
+
+    /* Deliberately no render() here. The tobacco line is a fixed "quoted
+       separately" row — redrawing the estimate on every keystroke made the
+       whole panel flicker while typing. It's refreshed on blur instead. */
+    if (Boolean(state.tobacco.trim()) !== tobaccoLineShown) render();
   });
-  $('#notes').addEventListener('input', e => { state.notes = e.target.value; });
+  tobaccoInput.addEventListener('blur', render);
+
+  notesInput.addEventListener('input', () => {
+    state.notes = notesInput.value;
+    countChars(notesInput, $('#notes-count'));
+  });
 
   /* ---------------- contact ---------------- */
   ['name', 'phone', 'email'].forEach(id => {
@@ -319,12 +415,8 @@
   });
   /* ---------------- promo code ---------------- */
 
-  const promoField  = $('#promo-field');
   const promoInput  = $('#promo');
   const promoStatus = $('#promo-status');
-
-  /* No codes configured means nothing to type — don't tease an empty box. */
-  promoField.hidden = !P.anyPromoCodes();
 
   function applyPromo() {
     state.promo = promoInput.value.trim();
@@ -422,9 +514,23 @@
       if (!state.date) return flagInvalid(dateInput, 'Pick the date of your event to continue.');
       if (state.date < today) return flagInvalid(dateInput, "That date has already passed — choose today or later.");
       if (!state.time) return flagInvalid(timeInput, 'Add a start time so we know when to be there.');
+
+      /* We can't cater or deliver to a blank address, so neither service gets
+         past this step without one. */
+      if (state.street.trim().length < 4) {
+        return flagInvalid(streetInput, 'Enter the street address for your event.');
+      }
+      if (!state.city.trim()) {
+        return flagInvalid(cityInput, 'Enter the city for your event.');
+      }
+      if (!/^\d{5}$/.test(state.zip)) {
+        return flagInvalid(zipInput, 'Enter a 5-digit ZIP code so we can work out the distance.');
+      }
       if (state.service === 'delivery') {
-        if (!/^\d{5}$/.test(state.zip)) return flagInvalid(zipInput, 'Enter a 5-digit ZIP code so we can check the delivery distance.');
-        if (P.locate(state.zip).status === 'far') {
+        const loc = state.coords
+          ? P.locateByCoords(state.coords.lat, state.coords.lng, state.coords.label)
+          : P.locate(state.zip);
+        if (loc.status === 'far') {
           return flagInvalid(zipInput, 'That address is outside our 100-mile delivery range. Try catering, or give us a call.');
         }
       }
@@ -474,6 +580,7 @@
   function render() {
     const q = P.quote(state);
     lastQuote = q;
+    tobaccoLineShown = Boolean(state.tobacco.trim());
 
     $('#summary-service').textContent = q.service === 'catering'
       ? `Catering · ${CFG.pricing.catering.serviceHours} hrs`
@@ -703,7 +810,18 @@
           headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
           body: JSON.stringify(fields)
         });
-        return { ok: res.ok };
+
+        /* Web3Forms answers 200 with {"success": false} when it accepts the
+           request but refuses to deliver — an unverified or wrong access key
+           being the usual cause. Checking res.ok alone reports those as sent. */
+        let body = null;
+        try { body = await res.json(); } catch (_) { /* non-JSON reply */ }
+
+        if (res.ok && body && body.success === true) return { ok: true };
+
+        const reason = (body && body.message) || `HTTP ${res.status}`;
+        console.error('[Hookah By Hov] Web3Forms did not deliver this booking:', reason, body || '');
+        return { ok: false, reason };
       }
 
       if (n.provider === 'formspree') {
@@ -776,8 +894,8 @@
     $('#success-sub').textContent = delivered
       ? `We've got your booking${state.name ? ', ' + state.name.trim().split(/\s+/)[0] : ''}. ` +
         `We'll call you at ${state.phone} shortly to confirm the details and lock in your date.`
-      : `We couldn't send that automatically — your connection may have dropped. ` +
-        `Tap “Email us a copy” below and it'll go through, or call us on ${CFG.business.phone}.`;
+      : `We couldn't send that automatically. Tap “Email us a copy” below and ` +
+        `it'll go through, or call us on ${CFG.business.phone}.`;
 
     /* Nothing to fall back to when it went through — keep the confirmation clean. */
     $('#success-actions').hidden = delivered;

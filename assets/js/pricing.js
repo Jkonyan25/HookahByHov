@@ -130,6 +130,36 @@
     return cateringTiers(qty).reduce((s, t) => s + t.amount, 0) / qty;
   }
 
+  /* Same answer as locate(), but measured from exact coordinates instead of a
+     ZIP centroid — used when Google Maps hands back a real address. */
+  function locateByCoords(lat, lng, label) {
+    const base = ZIPS[CFG.business.baseZip];
+    if (!base || typeof lat !== 'number' || typeof lng !== 'number') {
+      return { status: 'unknown', zip: '', exact: true };
+    }
+    const miles = haversine(base[0], base[1], lat, lng);
+    const bands = CFG.pricing.delivery.bands;
+
+    for (const band of bands) {
+      if (miles <= band.maxMiles) {
+        return {
+          status: 'ok', zip: '', city: label || '', miles,
+          fee: band.fee, band: band.label, exact: true
+        };
+      }
+    }
+    return {
+      status: 'far', zip: '', city: label || '', miles, fee: null, exact: true,
+      band: 'Outside the ' + bands[bands.length - 1].maxMiles + '-mile service area'
+    };
+  }
+
+  /* Origin coordinates, handy for biasing map searches to the service area. */
+  function baseCoords() {
+    const base = ZIPS[CFG.business.baseZip];
+    return base ? { lat: base[0], lng: base[1] } : null;
+  }
+
   /* ---------------- promo codes ---------------- */
 
   /* Codes are matched case-insensitively and ignore surrounding spaces, so
@@ -154,7 +184,14 @@
      → { ok:true, def } | { ok:false, reason } */
   function validatePromo(code, ctx) {
     const def = findPromo(code);
-    if (!def) return { ok: false, reason: "That code isn't valid — double-check the spelling." };
+    if (!def) {
+      return {
+        ok: false,
+        reason: anyPromoCodes()
+          ? "That code isn't valid — double-check the spelling."
+          : "There aren't any promo codes running right now."
+      };
+    }
 
     const today = todayIso();
     if (def.startsOn && today < def.startsOn) {
@@ -291,7 +328,10 @@
     /* --- delivery travel --- */
     let location = null;
     if (service === 'delivery') {
-      location = locate(state.zip);
+      /* Exact coordinates from a picked address beat the ZIP centroid. */
+      location = state.coords
+        ? locateByCoords(state.coords.lat, state.coords.lng, state.coords.label)
+        : locate(state.zip);
       flags.location = location;
 
       if (location.status === 'ok') {
@@ -372,7 +412,7 @@
   }
 
   window.HBH_PRICING = {
-    quote, locate, cateringTiers, effectiveRate, haversine,
+    quote, locate, locateByCoords, baseCoords, cateringTiers, effectiveRate, haversine,
     findPromo, anyPromoCodes, validatePromo, promoDiscount, promoLabel,
     money, todayIso, addDaysIso, parseIso, formatDate, formatTime, endTime
   };

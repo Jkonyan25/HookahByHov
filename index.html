@@ -336,7 +336,6 @@
               <input type="number" id="qty" name="quantity" min="1" max="200" step="1" value="10" inputmode="numeric" aria-describedby="qty-help">
               <button type="button" class="qty-btn" id="qty-plus" aria-label="Increase quantity">+</button>
             </div>
-            <input type="range" id="qty-range" class="qty-range" min="1" max="40" step="1" value="10" aria-label="Quantity slider">
             <div class="qty-presets" role="group" aria-label="Quick quantities">
               <button type="button" data-qty="5">5</button>
               <button type="button" data-qty="10">10</button>
@@ -363,12 +362,18 @@
 
           <div class="date-flags" id="date-flags" aria-live="polite"></div>
 
-          <div class="field">
+          <div class="field field-address">
             <label class="field-label" for="addr-street">
               <span data-service="catering">Event address</span>
               <span data-service="delivery" hidden>Delivery address</span>
             </label>
-            <input type="text" id="addr-street" name="street" placeholder="Street address" autocomplete="street-address">
+            <div class="autocomplete">
+              <input type="text" id="addr-street" name="street" placeholder="Start typing your address…"
+                     autocomplete="street-address" role="combobox" aria-expanded="false"
+                     aria-autocomplete="list" aria-controls="addr-suggestions">
+              <ul class="autocomplete-list" id="addr-suggestions" role="listbox" hidden></ul>
+            </div>
+            <p class="field-help" id="addr-help">Street address, apartment or suite number.</p>
           </div>
 
           <div class="field-row">
@@ -419,13 +424,22 @@
 
           <div class="field">
             <label class="field-label" for="tobacco">Tobacco request <span class="field-optional">optional</span></label>
-            <textarea id="tobacco" name="tobacco" rows="3" placeholder="e.g. 4 hookahs on Tangiers Cane Mint, the rest dealer's choice"></textarea>
-            <p class="field-help">Brand, flavor, mixes, or how many hookahs should run it. Priced on request.</p>
+            <textarea id="tobacco" name="tobacco" rows="3" maxlength="125"
+                      placeholder="e.g. 4 hookahs on Tangiers Cane Mint, the rest dealer's choice"></textarea>
+            <div class="field-foot">
+              <p class="field-help">Brand, flavor, mixes, or how many hookahs should run it. Priced on request.</p>
+              <span class="char-count" id="tobacco-count" aria-live="polite">0/125</span>
+            </div>
           </div>
 
           <div class="field">
             <label class="field-label" for="notes">Anything else? <span class="field-optional">optional</span></label>
-            <textarea id="notes" name="notes" rows="3" placeholder="Occasion, venue type, indoor or outdoor, parking notes, extended hours…"></textarea>
+            <textarea id="notes" name="notes" rows="3" maxlength="250"
+                      placeholder="Occasion, venue type, indoor or outdoor, parking notes, extended hours…"></textarea>
+            <div class="field-foot">
+              <p class="field-help">Anything that helps us plan the night.</p>
+              <span class="char-count" id="notes-count" aria-live="polite">0/250</span>
+            </div>
           </div>
 
           <div class="step-nav">
@@ -464,7 +478,7 @@
             </div>
           </div>
 
-          <div class="field" id="promo-field" hidden>
+          <div class="field" id="promo-field">
             <label class="field-label" for="promo">Promo code <span class="field-optional">optional</span></label>
             <div class="promo-row">
               <input type="text" id="promo" name="promo" placeholder="Enter code"
@@ -680,6 +694,7 @@
 <script src="assets/js/zipdata.js"></script>
 <script src="assets/js/holidays.js"></script>
 <script src="assets/js/pricing.js"></script>
+<script src="assets/js/maps.js"></script>
 <script src="assets/js/app.js"></script>
 </body>
 </html>

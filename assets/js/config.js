@@ -44,6 +44,40 @@ window.HBH_CONFIG = {
   },
 
   /* ----------------------------------------------------------------------
+     GOOGLE MAPS — address autocomplete
+     ----------------------------------------------------------------------
+     Optional. Leave `apiKey` empty and the address fields work exactly as they
+     do now: the customer types a ZIP and the distance comes from the built-in
+     ZIP table. No key, no bill, nothing breaks.
+
+     Add a key and the address box starts suggesting real addresses as they
+     type. Picking one fills in the city and ZIP automatically and measures the
+     distance from the exact rooftop coordinates instead of the ZIP's centre
+     point — so the delivery fee is right even for a ZIP that straddles a band.
+
+     To get a key:
+       1. https://console.cloud.google.com → create a project
+       2. Enable the "Places API (New)" for it
+       3. APIs & Services → Credentials → Create credentials → API key
+       4. IMPORTANT: click the key → Application restrictions → Websites, and
+          add your domains (hookahbyhov.com, www.hookahbyhov.com). A key with
+          no restrictions can be lifted off your page and run up your bill.
+       5. API restrictions → restrict the key to the Places API
+       6. Billing must be enabled on the project. Google includes a monthly
+          free allowance that comfortably covers a booking form of this size,
+          but set a budget alert so there are no surprises.
+
+     The key sits in the page — that is normal and unavoidable for browser
+     maps. The website restriction in step 4 is what protects it.
+     ---------------------------------------------------------------------- */
+  maps: {
+    apiKey: '',                    // ← paste your Google Maps API key here
+    country: 'us',
+    /* Bias suggestions toward the service area rather than the whole country. */
+    biasRadiusMiles: 110
+  },
+
+  /* ----------------------------------------------------------------------
      PRICING
      ---------------------------------------------------------------------- */
   pricing: {
