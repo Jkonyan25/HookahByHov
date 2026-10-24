@@ -242,7 +242,7 @@
     }
 
     box.innerHTML = flags.map(f =>
-      `<span class="flag ${f.cls}"><svg aria-hidden="true"><use href="#icon-${f.icon}"></use></svg>${f.text}</span>`
+      `<span class="flag ${f.cls}"><svg width="14" height="14" aria-hidden="true"><use href="#icon-${f.icon}"></use></svg>${f.text}</span>`
     ).join('');
   }
 
@@ -354,7 +354,7 @@
     const feeWord = isDelivery ? 'delivery fee' : 'destination fee';
 
     const tpl = (cls, icon, html) =>
-      `<div class="zip-box ${cls}"><svg aria-hidden="true"><use href="#icon-${icon}"></use></svg><div>${html}</div></div>`;
+      `<div class="zip-box ${cls}"><svg width="18" height="18" aria-hidden="true"><use href="#icon-${icon}"></use></svg><div>${html}</div></div>`;
 
     if (loc.status === 'invalid' || loc.status === 'empty') { box.innerHTML = ''; return; }
 
@@ -474,7 +474,7 @@
     if (q.flags.promo) {
       promoStatus.innerHTML =
         `<span class="promo-msg promo-good">` +
-        `<svg aria-hidden="true"><use href="#icon-check"></use></svg>` +
+        `<svg width="15" height="15" aria-hidden="true"><use href="#icon-check"></use></svg>` +
         `<b>${escapeHtml(q.flags.promo.code)}</b> applied — ${escapeHtml(q.flags.promo.label)}, ` +
         `saving ${P.money(q.flags.promo.amount)}.</span>`;
     }
