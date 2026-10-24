@@ -12,7 +12,8 @@
   const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
 
   /* ======================================================================
-     Chrome: header, nav, reveals
+     Chrome: header, nav
+     (scroll reveals and the rest of the decoration live in motion.js)
      ====================================================================== */
 
   const header = $('.site-header');
@@ -20,40 +21,45 @@
   const mobileNav = $('#mobile-nav');
 
   let lastScroll = -1;
+  let scrollQueued = false;
   function onScroll() {
+    scrollQueued = false;
     const y = window.scrollY;
     if ((y > 12) !== (lastScroll > 12)) header.classList.toggle('is-scrolled', y > 12);
     lastScroll = y;
     updateTotalBar();
   }
-  window.addEventListener('scroll', () => requestAnimationFrame(onScroll), { passive: true });
+  window.addEventListener('scroll', () => {
+    if (scrollQueued) return;
+    scrollQueued = true;
+    requestAnimationFrame(onScroll);
+  }, { passive: true });
 
+  function openNav() {
+    mobileNav.hidden = false;
+    navToggle.setAttribute('aria-expanded', 'true');
+    navToggle.setAttribute('aria-label', 'Close menu');
+    document.body.classList.add('is-locked');
+    void mobileNav.offsetWidth;            // let it paint closed before animating open
+    mobileNav.classList.add('is-open');
+  }
   function closeNav() {
+    if (mobileNav.hidden) return;
     navToggle.setAttribute('aria-expanded', 'false');
-    mobileNav.hidden = true;
+    navToggle.setAttribute('aria-label', 'Open menu');
+    mobileNav.classList.remove('is-open');
     document.body.classList.remove('is-locked');
+    setTimeout(() => { if (!mobileNav.classList.contains('is-open')) mobileNav.hidden = true; }, 400);
   }
   navToggle.addEventListener('click', () => {
-    const open = navToggle.getAttribute('aria-expanded') === 'true';
-    navToggle.setAttribute('aria-expanded', String(!open));
-    mobileNav.hidden = open;
+    if (navToggle.getAttribute('aria-expanded') === 'true') closeNav();
+    else openNav();
   });
   $$('#mobile-nav a').forEach(a => a.addEventListener('click', closeNav));
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeNav(); });
-
-  if ('IntersectionObserver' in window) {
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-in');
-          io.unobserve(entry.target);
-        }
-      });
-    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.06 });
-    $$('.reveal').forEach(el => io.observe(el));
-  } else {
-    $$('.reveal').forEach(el => el.classList.add('is-in'));
-  }
+  window.addEventListener('resize', () => {
+    if (window.matchMedia('(min-width: 961px)').matches) closeNav();
+  });
 
   const yearEl = $('#year');
   if (yearEl) yearEl.textContent = new Date().getFullYear();
@@ -81,7 +87,9 @@
   let lastQuote = null;
 
   const form       = $('#booking-form');
+  const stepsBox   = $('#steps');
   const steps      = $$('.step', form);
+  const stepper    = $('#stepper');
   const stepBtns   = $$('#stepper button');
   const qtyInput   = $('#qty');
   const dateInput  = $('#event-date');
@@ -164,10 +172,27 @@
       radio.dispatchEvent(new Event('change', { bubbles: true }));
     }
   }
+
+  /* Every "book" shortcut on the page lands here: set what we already know,
+     open the right step, and glide down to the form. */
+  function startBooking(opts) {
+    if (opts.service) preselectService(opts.service);
+    if (opts.quantity) { qtyTouched = true; setQuantity(opts.quantity); }
+    goToStep(opts.step || 1, 'force');
+  }
+
   $$('[data-preselect]').forEach(link => {
-    link.addEventListener('click', () => {
-      preselectService(link.dataset.preselect);
-      goToStep(1);
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      startBooking({ service: link.dataset.preselect, step: 1 });
+    });
+  });
+
+  $$('[data-open-flavors]').forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      $('#flavor-disclosure').open = true;
+      startBooking({ step: 1 });
     });
   });
 
@@ -455,6 +480,11 @@
     }
   }
 
+  const promoField = $('#promo-field');
+  promoField.addEventListener('toggle', () => {
+    if (promoField.open) promoInput.focus({ preventScroll: true });
+  });
+
   $('#promo-apply').addEventListener('click', applyPromo);
   promoInput.addEventListener('keydown', e => {
     if (e.key === 'Enter') { e.preventDefault(); applyPromo(); }
@@ -477,19 +507,80 @@
      Steps
      ====================================================================== */
 
+  const STEP_EASE = 'cubic-bezier(.16,1,.3,1)';
+  let stepAnims = [];
+
+  /* Forward slides the new step in from the right, back from the left, while
+     the card smoothly resizes to fit — no jump in height between steps. */
+  function swapSteps(fromEl, toEl, dir) {
+    const startH = stepsBox.offsetHeight;
+    fromEl.classList.remove('is-active');
+    fromEl.classList.add('is-leaving');
+    toEl.classList.add('is-active');
+    const endH = stepsBox.offsetHeight;
+
+    stepsBox.style.overflow = 'hidden';
+    const resize = stepsBox.animate(
+      [{ height: startH + 'px' }, { height: endH + 'px' }],
+      { duration: 600, easing: STEP_EASE }
+    );
+    const out = fromEl.animate(
+      [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: `translateX(${-dir * 48}px)` }],
+      { duration: 280, easing: 'cubic-bezier(.4,0,1,1)', fill: 'forwards' }
+    );
+    const into = toEl.animate(
+      [{ opacity: 0, transform: `translateX(${dir * 48}px)` }, { opacity: 1, transform: 'none' }],
+      { duration: 640, delay: 110, easing: STEP_EASE, fill: 'backwards' }
+    );
+    stepAnims = [resize, out, into];
+    resize.onfinish = () => {
+      out.cancel();
+      fromEl.classList.remove('is-leaving');
+      stepsBox.style.overflow = '';
+    };
+  }
+
+  function stopStepAnims() {
+    stepAnims.forEach(a => a.cancel());
+    stepAnims = [];
+    steps.forEach(s => s.classList.remove('is-leaving'));
+    stepsBox.style.overflow = '';
+  }
+
+  /* scroll: 'force' always brings the form into view, false never does, and
+     the default only scrolls when the top of the form is out of sight. */
   function goToStep(n, scroll) {
-    step = Math.max(1, Math.min(steps.length, n));
-    steps.forEach(s => s.classList.toggle('is-active', Number(s.dataset.step) === step));
+    const target = Math.max(1, Math.min(steps.length, n));
+    const from = step;
+    step = target;
+
+    stopStepAnims();
+    const animate = from !== target && !prefersReducedMotion() &&
+      typeof stepsBox.animate === 'function' && stepsBox.offsetParent !== null;
+    if (animate) {
+      swapSteps(steps[from - 1], steps[target - 1], target > from ? 1 : -1);
+    } else {
+      steps.forEach(s => s.classList.toggle('is-active', Number(s.dataset.step) === step));
+    }
+
+    stepper.style.setProperty('--step', step);
     stepBtns.forEach((btn, i) => {
       const index = i + 1;
       btn.classList.toggle('is-done', index < step);
+      btn.parentElement.classList.toggle('is-current', index === step);
       if (index === step) btn.setAttribute('aria-current', 'step');
       else btn.removeAttribute('aria-current');
     });
     updateTotalBarCta();
-    if (scroll !== false) {
-      const top = form.getBoundingClientRect().top + window.scrollY - (header.offsetHeight + 18);
-      window.scrollTo({ top, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+
+    if (scroll === false) return;
+    const offset = header.offsetHeight + 18;
+    const formTop = form.getBoundingClientRect().top;
+    if (scroll === 'force' || formTop < offset - 4 || formTop > window.innerHeight * 0.6) {
+      window.scrollTo({
+        top: formTop + window.scrollY - offset,
+        behavior: prefersReducedMotion() ? 'auto' : 'smooth'
+      });
     }
   }
 
@@ -499,14 +590,34 @@
 
   function flagInvalid(el, message) {
     el.classList.add('is-invalid');
-    showError(message);
+    showError(message, el.closest('.step'));
+    shake(el);
     if (el.focus) el.focus({ preventScroll: false });
     return false;
   }
 
-  function showError(message) {
+  function shake(el) {
+    if (prefersReducedMotion()) return;
+    el.classList.remove('is-shake');
+    void el.offsetWidth;
+    el.classList.add('is-shake');
+    el.addEventListener('animationend', () => el.classList.remove('is-shake'), { once: true });
+  }
+
+  /* After jumping back to a step that failed validation, put the cursor on
+     the field that needs fixing. */
+  function focusFirstInvalid() {
+    const el = $('.is-invalid', steps[step - 1]);
+    if (el && el.focus) el.focus({ preventScroll: true });
+  }
+
+  /* One error box, shown just above the buttons of whichever step it's about. */
+  function showError(message, stepEl) {
     const box = $('#form-error');
     if (!message) { box.hidden = true; box.textContent = ''; return; }
+    const where = stepEl || steps[step - 1];
+    const nav = $('.step-nav', where);
+    if (nav && box.nextElementSibling !== nav) where.insertBefore(box, nav);
     box.textContent = message;
     box.hidden = false;
   }
@@ -538,7 +649,7 @@
         }
       }
     }
-    if (n === 4) {
+    if (n === 3) {
       if (!state.name.trim()) return flagInvalid($('#name'), 'We need a name for the booking.');
       if (state.phone.replace(/\D/g, '').length < 10) return flagInvalid($('#phone'), 'Add a 10-digit phone number so we can reach you.');
       if (!state.email.trim()) return flagInvalid($('#email'), 'We need an email address to confirm your booking.');
@@ -550,6 +661,11 @@
     return true;
   }
 
+  /* Once every flagged field has been fixed, the message goes too. */
+  ['input', 'change'].forEach(type => form.addEventListener(type, () => {
+    if (!$('#form-error').hidden && !$('.is-invalid:not(#promo)', form)) showError('');
+  }));
+
   $$('[data-next]', form).forEach(btn => {
     btn.addEventListener('click', () => { if (validateStep(step)) goToStep(step + 1); });
   });
@@ -560,7 +676,9 @@
     btn.addEventListener('click', () => {
       const target = i + 1;
       if (target <= step) { showError(''); goToStep(target); return; }
-      for (let s = step; s < target; s++) if (!validateStep(s)) { goToStep(s); return; }
+      for (let s = step; s < target; s++) {
+        if (!validateStep(s)) { goToStep(s); focusFirstInvalid(); return; }
+      }
       goToStep(target);
     });
   });
@@ -568,8 +686,6 @@
   /* ======================================================================
      Summary rendering
      ====================================================================== */
-
-  let lastTotal = null;
 
   /* One place decides how a line item's money reads, so the summary, the
      invoice and the text message can never disagree. */
@@ -580,6 +696,34 @@
     return P.money(line.amount);
   }
 
+  /* Totals roll to their new value instead of snapping. Each element keeps
+     its own in-flight tween so a fast run of changes never stutters. */
+  const tweens = new Map();
+  function tweenMoney(el, to) {
+    const prev = tweens.get(el);
+    const from = prev ? prev.current : to;
+    if (prev && prev.raf) cancelAnimationFrame(prev.raf);
+    const t = { current: from, raf: 0 };
+    tweens.set(el, t);
+
+    if (from === to || prefersReducedMotion()) {
+      t.current = to;
+      el.textContent = P.money(to);
+      return;
+    }
+    const start = performance.now();
+    const dur = 700;
+    (function tick(now) {
+      const p = Math.min(1, (now - start) / dur);
+      const eased = 1 - Math.pow(1 - p, 4);
+      t.current = from + (to - from) * eased;
+      el.textContent = P.money(t.current);
+      t.raf = p < 1 ? requestAnimationFrame(tick) : 0;
+    })(start);
+  }
+
+  let shownLineKeys = new Set();
+
   function render() {
     const q = P.quote(state);
     lastQuote = q;
@@ -589,23 +733,23 @@
       ? `Catering · ${CFG.pricing.catering.serviceHours} hrs`
       : 'Delivery';
 
+    /* Only lines that weren't there a moment ago animate in. */
     const lines = $('#summary-lines');
+    const keys = new Set();
     lines.innerHTML = q.lines.map(l => {
-      const cls = l.type ? ` line-${l.type}` : '';
+      keys.add(l.key);
+      const cls = (l.type ? ` line-${l.type}` : '') + (shownLineKeys.has(l.key) ? '' : ' is-new');
       return `<div class="line${cls}">
         <dt>${escapeHtml(l.label)}${l.detail ? `<small>${escapeHtml(l.detail)}</small>` : ''}</dt>
         <dd>${lineValue(l)}</dd>
       </div>`;
     }).join('') || '<div class="line line-muted"><dt>No hookahs selected yet</dt><dd>—</dd></div>';
+    shownLineKeys = keys;
 
-    const totalEl = $('#summary-total');
-    totalEl.textContent = P.money(q.total);
-    if (lastTotal !== null && lastTotal !== q.total && !prefersReducedMotion()) {
-      totalEl.classList.remove('is-bump');
-      void totalEl.offsetWidth;
-      totalEl.classList.add('is-bump');
-    }
-    lastTotal = q.total;
+    tweenMoney($('#summary-total'), q.total);
+    const live = $('#summary-total-live');
+    const spoken = `Estimated total ${P.money(q.total)}`;
+    if (live.textContent !== spoken) live.textContent = spoken;
 
     const foot = $('#summary-foot');
     if (q.blocked) {
@@ -618,7 +762,7 @@
         'No payment is taken online.';
     }
 
-    $('#total-bar-amount').textContent = P.money(q.total);
+    tweenMoney($('#total-bar-amount'), q.total);
     $('#total-bar-label').textContent =
       `${q.service === 'catering' ? 'Catering' : 'Delivery'} · ${q.quantity} hookah${q.quantity === 1 ? '' : 's'}`;
 
@@ -643,6 +787,7 @@
       totalBar.classList.remove('is-up');
       totalBar.hidden = true;
       document.body.classList.remove('has-bar');
+      setSheet(false);
       return;
     }
     const rect = builderSection.getBoundingClientRect();
@@ -650,29 +795,128 @@
     totalBar.hidden = false;
     totalBar.classList.toggle('is-up', visible);
     document.body.classList.toggle('has-bar', visible);
+    document.documentElement.style.setProperty('--bar-h', totalBar.offsetHeight + 'px');
+    if (!visible) setSheet(false);
   }
 
   function updateTotalBarCta() {
     const cta = $('#total-bar-cta');
-    cta.textContent = step >= steps.length ? 'Submit' : 'Continue';
+    cta.textContent = step >= steps.length ? 'Send request' : 'Continue';
   }
 
   $('#total-bar-cta').addEventListener('click', () => {
+    setSheet(false);
     if (step >= steps.length) form.requestSubmit();
     else if (validateStep(step)) goToStep(step + 1);
   });
 
-  $('#total-bar-toggle').addEventListener('click', () => {
-    const collapsed = summaryEl.classList.toggle('is-collapsed');
-    $('#total-bar-toggle').setAttribute('aria-expanded', String(!collapsed));
-    if (!collapsed) {
-      summaryEl.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'center' });
+  /* On phones and tablets the estimate is a bottom sheet: tap the total to
+     slide it up over the form, tap outside (or the grip) to put it away. */
+  const sheetBackdrop = $('#sheet-backdrop');
+  const sheetToggle = $('#total-bar-toggle');
+
+  function setSheet(open) {
+    if (open && !isMobileLayout()) open = false;
+    if (open === summaryEl.classList.contains('is-open')) return;
+    summaryEl.classList.toggle('is-open', open);
+    sheetToggle.setAttribute('aria-expanded', String(open));
+    if (open) {
+      sheetBackdrop.hidden = false;
+      void sheetBackdrop.offsetWidth;
+      sheetBackdrop.classList.add('is-on');
+    } else {
+      sheetBackdrop.classList.remove('is-on');
+      setTimeout(() => { if (!summaryEl.classList.contains('is-open')) sheetBackdrop.hidden = true; }, 450);
     }
+  }
+
+  sheetToggle.addEventListener('click', () => setSheet(!summaryEl.classList.contains('is-open')));
+  sheetBackdrop.addEventListener('click', () => setSheet(false));
+  $('#summary-close').addEventListener('click', () => setSheet(false));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') setSheet(false); });
+
+  window.addEventListener('resize', updateTotalBar);
+
+  /* ======================================================================
+     Pricing explorer — try numbers first, then carry them into the booking
+     ====================================================================== */
+
+  const explorer = { service: 'catering', quantity: 10 };
+  const exQty     = $('#explore-qty');
+  const exSeg     = $('#explore-seg');
+  const exTiers   = $('#explore-tiers');
+  const exMin     = Number(exQty.min);
+  const exMax     = Number(exQty.max);
+
+  /* Tier cards come from config, so a rate change there shows up here too. */
+  exTiers.innerHTML = CFG.pricing.catering.tiers.map(t => {
+    const top = t.to === Infinity ? exMax : t.to;
+    const range = t.to === Infinity ? `${t.from}+` : `${t.from}–${t.to}`;
+    return `<li class="tier" data-from="${t.from}" data-to="${top}" data-rate="${t.rate}">` +
+      `<span class="tier-range">Hookahs ${range}</span>` +
+      `<span class="tier-rate">${P.money(t.rate)}<small> each</small></span>` +
+      `<span class="tier-bar"><i></i></span>` +
+      `<span class="tier-sum">—</span></li>`;
+  }).join('');
+  const tierEls = $$('.tier', exTiers);
+
+  function renderExplorer() {
+    const n = explorer.quantity;
+    const isCatering = explorer.service === 'catering';
+    const q = P.quote({ service: explorer.service, quantity: n });
+    const plural = n === 1 ? '' : 's';
+
+    tweenMoney($('#explore-total'), q.total);
+    $('#explore-qty-value').textContent = n;
+    exQty.style.setProperty('--fill', ((n - exMin) / (exMax - exMin) * 100).toFixed(2) + '%');
+    exQty.setAttribute('aria-valuetext', `${n} hookah${plural}, ${P.money(q.total)}`);
+
+    $('#explore-caption').textContent = isCatering
+      ? `${n} hookah${plural} · ${CFG.pricing.catering.serviceHours}-hour service · avg ${P.money(q.meta.rate)} each`
+      : `${n} hookah${plural} × ${P.money(CFG.pricing.delivery.perHookah)} · delivered ready to smoke`;
+
+    tierEls.forEach(el => {
+      const from = Number(el.dataset.from);
+      const to = Number(el.dataset.to);
+      const span = to - from + 1;
+      const count = Math.max(0, Math.min(n, to) - from + 1);
+      $('.tier-bar i', el).style.setProperty('--f', (count / span).toFixed(3));
+      $('.tier-sum', el).textContent = count
+        ? `${count} × ${P.money(Number(el.dataset.rate))} = ${P.money(count * Number(el.dataset.rate))}`
+        : '—';
+      el.classList.toggle('is-active', n >= from && n <= to);
+    });
+
+    $('#explore-book-label').textContent = `Book ${n} hookah${plural}`;
+  }
+
+  function setExplorerService(value) {
+    if (explorer.service === value) return;
+    explorer.service = value;
+    exSeg.dataset.value = value;
+    const radio = $(`input[name="explore-service"][value="${value}"]`);
+    if (radio) radio.checked = true;
+    $$('[data-explore-panel]').forEach(p => { p.hidden = p.dataset.explorePanel !== value; });
+    renderExplorer();
+  }
+
+  $$('input[name="explore-service"]').forEach(r => {
+    r.addEventListener('change', () => { if (r.checked) setExplorerService(r.value); });
+  });
+  exQty.addEventListener('input', () => {
+    explorer.quantity = Number(exQty.value);
+    renderExplorer();
   });
 
-  window.addEventListener('resize', () => {
-    updateTotalBar();
-    if (!isMobileLayout()) summaryEl.classList.remove('is-collapsed');
+  /* Service cards' "Pricing" links open the explorer on that service. */
+  $$('[data-explore]').forEach(link => {
+    link.addEventListener('click', () => setExplorerService(link.dataset.explore));
+  });
+
+  /* Their choices are already made, so skip straight to date and address. */
+  $('#explore-book').addEventListener('click', e => {
+    e.preventDefault();
+    startBooking({ service: explorer.service, quantity: explorer.quantity, step: 2 });
   });
 
   /* ======================================================================
@@ -861,7 +1105,7 @@
     if (form.querySelector('[name="botcheck"]').value) return;
 
     for (let s = 1; s <= steps.length; s++) {
-      if (!validateStep(s)) { goToStep(s); return; }
+      if (!validateStep(s)) { goToStep(s); focusFirstInvalid(); return; }
     }
 
     const q = P.quote(state);
@@ -952,9 +1196,12 @@
       emailBtn.hidden = true;
     }
 
+    setSheet(false);
+    successEl.classList.toggle('is-failed', !delivered);
     successEl.hidden = false;
     document.body.classList.add('is-locked');
     $('#success-close').focus();
+    if (delivered && window.HBH_MOTION) window.HBH_MOTION.burst($('#success-mark'));
 
     window.__hbhLastPayload = payload;
   }
@@ -996,8 +1243,8 @@
   renderDateFlags();
   renderZip();
   render();
+  renderExplorer();
   updateTotalBar();
   updateTotalBarCta();
-  if (isMobileLayout()) summaryEl.classList.add('is-collapsed');
   onScroll();
 })();

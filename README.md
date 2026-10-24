@@ -11,6 +11,36 @@ server required.
 
 ---
 
+## How the page flows
+
+The look borrows from Apple's dark product pages: true black, big tight
+headlines, quiet greys, and the logo's gold as the only accent. Top to bottom:
+
+1. **Hero** — headline, a "Book now" button, and the badge, which tilts toward
+   the pointer while gold smoke rises behind it.
+2. **Manifesto** — one paragraph whose words light up as you scroll past.
+3. **Services** — catering and delivery side by side. "Book catering" / "Book
+   delivery" open the booking form with that service already picked.
+4. **Highlights** — a grid of tiles (4 hrs, $60, 25 mi, 21+, flavors, since
+   2020) whose numbers count up as they come into view.
+5. **Pricing explorer** — pick catering or delivery, drag the slider, and the
+   total, the tier breakdown and the fee list update live. **"Book N hookahs"
+   carries that service and count into the booking form and skips straight to
+   the date-and-address step.**
+6. **Booking form** — three steps:
+   - **Setup** — service, hookah count, and an optional *Add a flavor request*
+     drawer (flavor chips + tobacco request).
+   - **When & where** — date, time, address, and notes.
+   - **Your details** — name, phone, email, best way to reach you, a *Have a
+     promo code?* link, and the 21+ confirmation.
+7. **FAQ**, a closing call to action, and the footer.
+
+All of the motion lives in `assets/js/motion.js` and is decoration only: the
+page reads and books exactly the same without it, and it all switches off for
+anyone who has "reduce motion" turned on.
+
+---
+
 ## How a booking reaches you
 
 **This is live and needs nothing further.** When a customer hits **Submit**,
@@ -134,9 +164,9 @@ step 4 matters. A restricted key is useless to anyone who copies it.
 
 ## Promo codes
 
-The promo box sits at the bottom of the **Contact** step and is always visible.
-Until you add codes below, any code entered gets *"There aren't any promo codes
-running right now."*
+The promo code sits behind a **Have a promo code?** link near the bottom of the
+**Your details** step — one tap opens the box. Until you add codes below, any
+code entered gets *"There aren't any promo codes running right now."*
 
 Add your codes to `assets/js/config.js`:
 
@@ -219,7 +249,12 @@ So 10 hookahs is **$1,000**, 20 hookahs is **$1,000 + $800 = $1,800**, and
 25 hookahs is **$1,000 + $800 + $350 = $2,150**.
 
 Catering includes **4 hours** of on-site service, stated on the service card,
-the pricing table, the booking form, the estimate and the FAQ.
+the highlights, the pricing explorer, the booking form, the estimate and the FAQ.
+
+The tier cards in the pricing explorer are built from `config.js`, so a rate
+change there shows up on them automatically. The rest of the page's prose (the
+service cards, the fee lists and the FAQ examples) quotes the numbers as plain
+text — update those by hand if you change a price.
 
 **Catering-only surcharges:**
 - **+$200** if the event date is a holiday
@@ -267,10 +302,12 @@ any nearby base works without regenerating data.
 
 ### Specialty tobacco
 
-A free-text request field with quick-pick flavour chips. It's deliberately **not**
+A free-text request field with quick-pick flavour chips, inside the optional
+*Add a flavor request* drawer on the first step. It's deliberately **not**
 priced — it appears on the estimate as *“Quoted separately”*, and the site tells
-the customer in three places that the cost depends on the amount requested and
-the current market price, and that you'll confirm it when you contact them.
+the customer (in the drawer, the flavors tile, the FAQ and the confirmation)
+that the cost depends on the amount requested and the current market price, and
+that you'll confirm it when you contact them.
 
 ---
 
@@ -299,7 +336,8 @@ assets/js/zipdata.js       ZIP centroids for the delivery radius
 assets/js/maps.js          Google Places address autocomplete (optional)
 assets/js/holidays.js      holiday calendar (any year, calculated)
 assets/js/pricing.js       quote engine — pure maths, no DOM
-assets/js/app.js           form, steps, validation, sending
+assets/js/app.js           form, steps, validation, pricing explorer, sending
+assets/js/motion.js        scroll reveals, smoke, tilt, counters — decoration only
 assets/img/                logo badge + favicon (SVG)
 ```
 
@@ -307,9 +345,10 @@ assets/img/                logo badge + favicon (SVG)
 
 The badge is currently a hand-built SVG recreation, which keeps the page fast
 and lets it scale to any size without going blurry. To use your original
-artwork instead, drop the file in as `assets/img/logo-badge.png` and replace the
-three `<svg class="…"><use href="#icon-badge"></use></svg>` tags in `index.html`
-(header, hero, footer) with `<img src="assets/img/logo-badge.png" alt="Hookah By Hov">`.
+artwork instead, drop the file in as `assets/img/logo-badge.png` and replace each
+`<svg class="…"><use href="#icon-badge"></use></svg>` tag in `index.html`
+(header, hero, highlights, estimate, footer) with
+`<img src="assets/img/logo-badge.png" alt="Hookah By Hov">`.
 
 Brand colours live at the top of `styles.css` as `--gold-100` through
 `--gold-700`, pulled from the logo's champagne-to-antique-gold gradient.
@@ -318,9 +357,13 @@ Brand colours live at the top of `styles.css` as `--gold-100` through
 
 ## Details worth knowing
 
-- **Mobile.** Checked from 320px up. The estimate follows the customer in a
-  sticky bottom bar as they fill the form, tap targets are 44px+, and the number,
-  date, time and phone fields open the right keyboard on a phone.
+- **Mobile.** Checked from 320px up. The total follows the customer in a
+  sticky bottom bar as they fill the form — tap it and the full itemised
+  estimate slides up as a sheet. Tap targets are 44px+, and the number, date,
+  time and phone fields open the right keyboard on a phone.
+- **Fonts.** Headlines and text use the system font on Apple devices (SF Pro)
+  and Inter everywhere else. The gold wordmark and badge keep Cormorant
+  Garamond.
 - **Dates.** "Today" is computed in **America/Los_Angeles**, so a visitor in
   another timezone can't accidentally dodge — or trigger — the same-day fee.
 - **Accessibility.** Keyboard navigable throughout, visible focus rings, live

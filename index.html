@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Hookah By Hov — Hookah Delivery, Catering &amp; Events | Los Angeles</title>
 <meta name="description" content="Premium hookah delivery and full-service catering across Los Angeles and the San Fernando Valley. Build your package, pick your date, and get an instant estimate. Est. 2020.">
-<meta name="theme-color" content="#0b0b0d">
+<meta name="theme-color" content="#000000">
 <meta name="color-scheme" content="dark">
 
 <meta property="og:type" content="website">
@@ -19,8 +19,11 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Jost:wght@300;400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cormorant+Garamond:wght@500;600&display=swap">
 <link rel="stylesheet" href="assets/css/styles.css">
+<!-- Lets the stylesheet hide scroll-reveal content only when the script that
+     reveals it is actually running. -->
+<script>document.documentElement.classList.add('js')</script>
 </head>
 <body>
 
@@ -84,8 +87,14 @@
     <symbol id="icon-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
       <path d="M12 21s7-5.7 7-11a7 7 0 1 0-14 0c0 5.3 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/>
     </symbol>
-    <symbol id="icon-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <symbol id="icon-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
       <path d="M5 12h14M13 6l6 6-6 6"/>
+    </symbol>
+    <symbol id="icon-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M9.5 6l6 6-6 6"/>
+    </symbol>
+    <symbol id="icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+      <path d="M12 5v14M5 12h14"/>
     </symbol>
     <symbol id="icon-spark" viewBox="0 0 24 24" fill="currentColor">
       <path d="M12 2l1.9 6.1L20 10l-6.1 1.9L12 18l-1.9-6.1L4 10l6.1-1.9z"/>
@@ -94,14 +103,11 @@
 </svg>
 
 <!-- ============ Header ============ -->
-<header class="site-header" id="top">
+<header class="site-header" id="site-header">
   <div class="wrap header-inner">
     <a class="brand" href="#top" aria-label="Hookah By Hov — home">
       <svg class="brand-badge" aria-hidden="true"><use href="#icon-badge"></use></svg>
-      <span class="brand-text">
-        <span class="brand-name">Hookah <em>by</em> Hov</span>
-        <span class="brand-sub">Delivery <i>|</i> Catering <i>|</i> Events</span>
-      </span>
+      <span class="brand-name">Hookah <em>by</em> Hov</span>
     </a>
 
     <nav class="nav" aria-label="Primary">
@@ -112,157 +118,247 @@
     </nav>
 
     <div class="header-cta">
-      <a class="btn btn-ghost btn-phone" href="tel:+18188078008" aria-label="Call us on 818-807-8008">
+      <a class="nav-call" href="tel:+18188078008" aria-label="Call us on 818-807-8008">
         <svg aria-hidden="true"><use href="#icon-phone"></use></svg>
-        <span class="phone-word" aria-hidden="true">Call Us</span>
-        <span class="phone-number" aria-hidden="true">818-807-8008</span>
+        <span>818-807-8008</span>
       </a>
-      <a class="btn btn-gold" href="#builder">Book now</a>
+      <a class="btn btn-gold btn-sm" href="#builder">Book</a>
     </div>
 
     <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="mobile-nav" aria-label="Open menu">
-      <span></span><span></span><span></span>
+      <span></span><span></span>
     </button>
   </div>
 
   <div class="mobile-nav" id="mobile-nav" hidden>
-    <a href="#services">Services</a>
-    <a href="#pricing">Pricing</a>
-    <a href="#flavors">Flavors</a>
-    <a href="#faq">FAQ</a>
-    <a href="#builder" class="mobile-nav-cta">Build my package</a>
-    <a href="tel:+18188078008" class="mobile-nav-phone">Call 818-807-8008</a>
+    <a href="#services" style="--i:0">Services</a>
+    <a href="#pricing" style="--i:1">Pricing</a>
+    <a href="#flavors" style="--i:2">Flavors</a>
+    <a href="#faq" style="--i:3">FAQ</a>
+    <a href="#builder" class="btn btn-gold btn-lg mobile-nav-cta" style="--i:4">Book now</a>
+    <a href="tel:+18188078008" class="mobile-nav-phone" style="--i:5">Call 818-807-8008</a>
   </div>
 </header>
 
 <main>
 
 <!-- ============ Hero ============ -->
-<section class="hero">
-  <div class="hero-glow" aria-hidden="true"></div>
-  <div class="wrap hero-inner">
-    <div class="hero-copy">
-      <p class="eyebrow reveal"><svg aria-hidden="true"><use href="#icon-spark"></use></svg><span>Est. 2020 · Los Angeles &amp; the Valley</span></p>
-      <h1 class="reveal">The hookah shows up.<br><span class="gold">The night takes care of itself.</span></h1>
-      <p class="lede reveal">Full-service hookah catering and doorstep delivery for parties, weddings, lounges and everything in between. Choose your setup, pick your date, and we'll send back a clear estimate — no payment taken online.</p>
-      <div class="hero-actions reveal">
-        <a class="btn btn-gold btn-lg" href="#builder">Build my package <svg aria-hidden="true"><use href="#icon-arrow"></use></svg></a>
-        <a class="btn btn-outline btn-lg" href="#pricing">See pricing</a>
-      </div>
-      <ul class="hero-stats reveal">
-        <li><strong>4 hrs</strong><span>Standard catering service</span></li>
-        <li><strong>$60</strong><span>Per hookah, delivered</span></li>
-        <li><strong>25 mi</strong><span>Free delivery radius</span></li>
-      </ul>
+<section class="hero" id="top">
+  <div class="wrap hero-copy" id="hero-copy">
+    <p class="hero-kicker reveal">Hookah By Hov <span aria-hidden="true">·</span> Est. 2020</p>
+    <h1 class="hero-title reveal reveal-lines">
+      <span class="line"><span style="--d:.08s">The hookah shows up.</span></span>
+      <span class="line"><span class="gold" style="--d:.2s">The night takes care of itself.</span></span>
+    </h1>
+    <p class="hero-sub reveal" style="--d:.34s">Hookah catering and delivery across Los Angeles and the Valley. See your price in seconds — nothing is charged online.</p>
+    <div class="hero-ctas reveal" style="--d:.44s">
+      <a class="btn btn-gold btn-lg" href="#builder">Book now</a>
+      <a class="link-more" href="#pricing">See pricing <svg aria-hidden="true"><use href="#icon-chevron"></use></svg></a>
     </div>
+  </div>
 
-    <div class="hero-art reveal" aria-hidden="true">
-      <div class="hero-badge-ring">
+  <div class="hero-stage" id="hero-stage" aria-hidden="true">
+    <canvas class="hero-smoke" id="hero-smoke"></canvas>
+    <div class="hero-halo"></div>
+    <div class="hero-badge-wrap reveal reveal-zoom" style="--d:.3s">
+      <div class="hero-badge-tilt" id="hero-badge">
         <svg class="hero-badge"><use href="#icon-badge"></use></svg>
+        <span class="hero-sheen"></span>
       </div>
-      <div class="hero-smoke"></div>
     </div>
   </div>
 </section>
 
-<!-- ============ Marquee ============ -->
-<div class="marquee" aria-hidden="true">
-  <div class="marquee-track">
-    <span>Birthdays</span><i>◆</i><span>Weddings</span><i>◆</i><span>Graduations</span><i>◆</i><span>Corporate Events</span><i>◆</i><span>Bachelor &amp; Bachelorette</span><i>◆</i><span>House Parties</span><i>◆</i><span>Lounges</span><i>◆</i>
-    <span>Birthdays</span><i>◆</i><span>Weddings</span><i>◆</i><span>Graduations</span><i>◆</i><span>Corporate Events</span><i>◆</i><span>Bachelor &amp; Bachelorette</span><i>◆</i><span>House Parties</span><i>◆</i><span>Lounges</span><i>◆</i>
+<!-- ============ Manifesto ============ -->
+<section class="manifesto" aria-label="What we do">
+  <div class="wrap">
+    <p class="manifesto-text" data-scrub>Premium hookahs, <span class="hl">lit on arrival</span> or run by our team all night. Every coal, every bowl, every refill — handled. Birthdays, weddings, graduations, house parties. <span class="hl">You just enjoy the night.</span></p>
   </div>
-</div>
+</section>
 
 <!-- ============ Services ============ -->
 <section class="section" id="services">
   <div class="wrap">
     <header class="section-head reveal">
-      <p class="eyebrow">Two ways to book</p>
-      <h2>Catering or delivery — your call</h2>
+      <h2>Catering or delivery.<br><span class="muted">Your call.</span></h2>
       <p class="section-sub">Want us there running the session all night? That's catering. Just want the hookahs dropped off ready to smoke? That's delivery.</p>
     </header>
 
     <div class="service-grid">
-      <article class="service-card reveal">
-        <div class="service-icon"><svg aria-hidden="true"><use href="#icon-crown"></use></svg></div>
-        <h3>Full-Service Catering</h3>
-        <p class="service-price">From <strong>$100</strong> <span>/ hookah</span></p>
-        <p>Our team arrives, sets up, and stays for the entire event — managing coals, swapping bowls and keeping every hookah running perfectly so you never touch a thing.</p>
+      <article class="service-card spot reveal">
+        <div class="service-top">
+          <span class="service-icon"><svg aria-hidden="true"><use href="#icon-crown"></use></svg></span>
+          <h3>Catering</h3>
+          <p class="service-tag">We bring it. We run it. We clean it up.</p>
+          <p class="service-price">From <strong>$100</strong> per hookah</p>
+        </div>
         <ul class="ticks">
-          <li><svg aria-hidden="true"><use href="#icon-check"></use></svg> <strong>4 hours</strong> of on-site service included</li>
-          <li><svg aria-hidden="true"><use href="#icon-check"></use></svg> Dedicated attendant managing coals &amp; bowls</li>
-          <li><svg aria-hidden="true"><use href="#icon-check"></use></svg> Premium heads, hoses, bases &amp; mouth tips</li>
-          <li><svg aria-hidden="true"><use href="#icon-check"></use></svg> Setup and full breakdown — we leave it clean</li>
-          <li><svg aria-hidden="true"><use href="#icon-check"></use></svg> Volume pricing drops to <strong>$70/hookah</strong></li>
+          <li><svg aria-hidden="true"><use href="#icon-check"></use></svg> <span><strong>4 hours</strong> of on-site service included</span></li>
+          <li><svg aria-hidden="true"><use href="#icon-check"></use></svg> <span>Dedicated attendant managing coals &amp; bowls</span></li>
+          <li><svg aria-hidden="true"><use href="#icon-check"></use></svg> <span>Premium heads, hoses, bases &amp; mouth tips</span></li>
+          <li><svg aria-hidden="true"><use href="#icon-check"></use></svg> <span>Setup and full breakdown — we leave it clean</span></li>
+          <li><svg aria-hidden="true"><use href="#icon-check"></use></svg> <span>Volume pricing drops to <strong>$70/hookah</strong></span></li>
         </ul>
-        <a class="btn btn-gold btn-block" href="#builder" data-preselect="catering">Build a catering package</a>
+        <div class="service-ctas">
+          <a class="btn btn-gold" href="#builder" data-preselect="catering">Book catering</a>
+          <a class="link-more" href="#pricing" data-explore="catering">Pricing <svg aria-hidden="true"><use href="#icon-chevron"></use></svg></a>
+        </div>
       </article>
 
-      <article class="service-card reveal">
-        <div class="service-icon"><svg aria-hidden="true"><use href="#icon-truck"></use></svg></div>
-        <h3>Hookah Delivery</h3>
-        <p class="service-price"><strong>$60</strong> <span>/ hookah, flat</span></p>
-        <p>Fully prepped hookahs delivered to your door, lit and ready to go. We drop off, you enjoy, and we come back for pickup — simple as that.</p>
+      <article class="service-card spot reveal" style="--d:.08s">
+        <div class="service-top">
+          <span class="service-icon"><svg aria-hidden="true"><use href="#icon-truck"></use></svg></span>
+          <h3>Delivery</h3>
+          <p class="service-tag">Dropped at your door, lit and ready.</p>
+          <p class="service-price"><strong>$60</strong> per hookah, flat</p>
+        </div>
         <ul class="ticks">
-          <li><svg aria-hidden="true"><use href="#icon-check"></use></svg> Flat <strong>$60</strong> per hookah, any quantity</li>
-          <li><svg aria-hidden="true"><use href="#icon-check"></use></svg> <strong>Free delivery</strong> across our local service area</li>
-          <li><svg aria-hidden="true"><use href="#icon-check"></use></svg> Coals, foil and extra bowl packed in</li>
-          <li><svg aria-hidden="true"><use href="#icon-check"></use></svg> Arrives lit and smoking — zero setup</li>
-          <li><svg aria-hidden="true"><use href="#icon-check"></use></svg> Pickup arranged when you're done</li>
+          <li><svg aria-hidden="true"><use href="#icon-check"></use></svg> <span>Flat <strong>$60</strong> per hookah, any quantity</span></li>
+          <li><svg aria-hidden="true"><use href="#icon-check"></use></svg> <span><strong>Free delivery</strong> across our local service area</span></li>
+          <li><svg aria-hidden="true"><use href="#icon-check"></use></svg> <span>Coals, foil and extra bowl packed in</span></li>
+          <li><svg aria-hidden="true"><use href="#icon-check"></use></svg> <span>Arrives lit and smoking — zero setup</span></li>
+          <li><svg aria-hidden="true"><use href="#icon-check"></use></svg> <span>Pickup arranged when you're done</span></li>
         </ul>
-        <a class="btn btn-outline btn-block" href="#builder" data-preselect="delivery">Schedule a delivery</a>
+        <div class="service-ctas">
+          <a class="btn btn-gold" href="#builder" data-preselect="delivery">Book delivery</a>
+          <a class="link-more" href="#pricing" data-explore="delivery">Pricing <svg aria-hidden="true"><use href="#icon-chevron"></use></svg></a>
+        </div>
       </article>
     </div>
   </div>
 </section>
 
-<!-- ============ Pricing ============ -->
-<section class="section section-alt" id="pricing">
+<!-- ============ Highlights ============ -->
+<section class="section section-tight" id="why">
   <div class="wrap">
     <header class="section-head reveal">
-      <p class="eyebrow">Straight numbers</p>
-      <h2>Transparent pricing</h2>
-      <p class="section-sub">No hidden fees, no surprise line items. Everything below is calculated live in the booking builder.</p>
+      <h2>Every detail.<br><span class="muted">Handled.</span></h2>
     </header>
 
-    <div class="pricing-grid">
-      <div class="price-card reveal">
-        <h3><svg aria-hidden="true"><use href="#icon-crown"></use></svg> Catering rates</h3>
-        <p class="price-note">Tiered pricing — the rate improves as you add hookahs, and each tier applies to the hookahs inside it.</p>
-        <table class="tier-table">
-          <thead><tr><th>Hookahs</th><th>Rate each</th><th>Example</th></tr></thead>
-          <tbody>
-            <tr><td>1 – 10</td><td class="gold">$100</td><td>10 hookahs = <strong>$1,000</strong></td></tr>
-            <tr><td>11 – 20</td><td class="gold">$80</td><td>20 hookahs = <strong>$1,800</strong></td></tr>
-            <tr><td>21 +</td><td class="gold">$70</td><td>25 hookahs = <strong>$2,150</strong></td></tr>
-          </tbody>
-        </table>
-        <p class="price-explainer">
-          <strong>How 20 hookahs comes to $1,800:</strong> the first 10 are billed at $100 each ($1,000) and the next 10 at $80 each ($800).
-        </p>
-        <ul class="fee-list">
-          <li><span>Service duration</span><b>4 hours</b></li>
-          <li><span>Holiday date surcharge</span><b>+$200</b></li>
-          <li><span>Same-day booking fee</span><b>+$200</b></li>
-        </ul>
-        <p class="fineprint">Holiday and same-day fees apply to catering bookings only.</p>
+    <div class="bento">
+      <article class="tile tile-wide tile-lit spot reveal">
+        <div class="tile-copy">
+          <p class="tile-kicker">Delivery</p>
+          <h3 class="tile-title">Arrives lit.</h3>
+          <p>Fully prepped hookahs, delivered smoking and ready to go. Coals, foil and an extra bowl packed in — we come back for pickup when you're done.</p>
+        </div>
+        <div class="ember" aria-hidden="true">
+          <span class="ember-core"></span>
+          <i></i><i></i><i></i><i></i><i></i><i></i>
+        </div>
+      </article>
+
+      <article class="tile spot reveal" style="--d:.06s">
+        <p class="tile-kicker">Catering</p>
+        <p class="tile-big"><span data-count="4">4</span><small> hrs</small></p>
+        <p>of on-site service. A dedicated attendant runs every coal and bowl.</p>
+      </article>
+
+      <article class="tile spot reveal">
+        <p class="tile-kicker">Delivery</p>
+        <p class="tile-big"><small>$</small><span data-count="60">60</span></p>
+        <p>per hookah, flat. Any quantity.</p>
+      </article>
+
+      <article class="tile spot reveal" style="--d:.06s">
+        <p class="tile-kicker">Travel</p>
+        <p class="tile-big"><span data-count="25">25</span><small> mi</small></p>
+        <p>of free travel. Further out, it's just $50 or $100.</p>
+      </article>
+
+      <article class="tile spot reveal" style="--d:.12s">
+        <p class="tile-kicker">Always</p>
+        <p class="tile-big">21<small>+</small></p>
+        <p>Everyone using our hookahs must be 21 or older. We may check ID.</p>
+      </article>
+
+      <article class="tile tile-wide tile-flavors spot reveal" id="flavors">
+        <div class="tile-copy">
+          <p class="tile-kicker">Tobacco</p>
+          <h3 class="tile-title">Any flavor you're loyal to.</h3>
+          <p>We stock the crowd-pleasers and chase down the specialty stuff. Specialty tobacco is priced on request — it depends on how much you need and the market that week.</p>
+          <a class="link-more" href="#builder" data-open-flavors>Add a flavor request <svg aria-hidden="true"><use href="#icon-chevron"></use></svg></a>
+        </div>
+        <div class="flavor-marquee" aria-hidden="true">
+          <ul class="flavor-row">
+            <li>Double Apple</li><li>Love 66</li><li>Blueberry Mint</li><li>White Peach</li><li>Watermelon</li><li>Lemon Mint</li><li>Grape</li><li>Ambrosia</li>
+            <li>Double Apple</li><li>Love 66</li><li>Blueberry Mint</li><li>White Peach</li><li>Watermelon</li><li>Lemon Mint</li><li>Grape</li><li>Ambrosia</li>
+          </ul>
+          <ul class="flavor-row flavor-row--rev">
+            <li>Al Fakher</li><li>Fumari</li><li>Adalya</li><li>Tangiers</li><li>Starbuzz</li><li>Trifecta</li><li>Mighty Freeze</li><li>Cane Mint</li>
+            <li>Al Fakher</li><li>Fumari</li><li>Adalya</li><li>Tangiers</li><li>Starbuzz</li><li>Trifecta</li><li>Mighty Freeze</li><li>Cane Mint</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="tile tile-since spot reveal" style="--d:.06s">
+        <svg class="tile-badge" aria-hidden="true"><use href="#icon-badge"></use></svg>
+        <h3 class="tile-title">Since 2020.</h3>
+        <p>Serving Los Angeles, the San Fernando Valley and surrounding areas.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Pricing explorer ============ -->
+<section class="section" id="pricing">
+  <div class="wrap">
+    <header class="section-head reveal">
+      <h2>See your price.<br><span class="muted">Before you book.</span></h2>
+      <p class="section-sub">Slide to your headcount. No hidden fees — these are the same numbers the booking form uses.</p>
+    </header>
+
+    <div class="explorer reveal" id="explorer">
+      <div class="segmented" id="explore-seg" role="radiogroup" aria-label="Service" data-value="catering">
+        <span class="segmented-thumb" aria-hidden="true"></span>
+        <label><input type="radio" name="explore-service" value="catering" checked><span>Catering</span></label>
+        <label><input type="radio" name="explore-service" value="delivery"><span>Delivery</span></label>
       </div>
 
-      <div class="price-card reveal">
-        <h3><svg aria-hidden="true"><use href="#icon-truck"></use></svg> Delivery rates</h3>
-        <p class="price-note">A flat rate per hookah, plus a travel fee if you're outside our local service area.</p>
-        <div class="flat-rate">
-          <span class="flat-rate-num">$60</span>
-          <span class="flat-rate-label">per hookah<br>any quantity</span>
-        </div>
-        <ul class="fee-list">
-          <li><span>Within 25 miles</span><b class="gold">Free</b></li>
-          <li><span>25 – 50 miles</span><b>+$50</b></li>
-          <li><span>50 – 100 miles</span><b>+$100</b></li>
-          <li><span>Over 100 miles</span><b>Call us</b></li>
-        </ul>
-        <p class="fineprint">Enter your address in the builder and we'll tell you straight away whether a travel fee applies.</p>
+      <div class="explorer-readout">
+        <output class="explorer-total" id="explore-total" for="explore-qty">$1,000</output>
+        <p class="explorer-caption" id="explore-caption">10 hookahs · 4-hour service · avg $100 each</p>
       </div>
+
+      <div class="explorer-slider">
+        <div class="explorer-slider-head">
+          <label for="explore-qty">How many hookahs?</label>
+          <span class="explorer-qty" id="explore-qty-value" aria-hidden="true">10</span>
+        </div>
+        <input type="range" id="explore-qty" min="1" max="50" step="1" value="10">
+        <div class="explorer-scale" aria-hidden="true"><span>1</span><span>10</span><span>20</span><span>30</span><span>40</span><span>50</span></div>
+      </div>
+
+      <div data-explore-panel="catering">
+        <ul class="tiers" id="explore-tiers" aria-label="Catering rate tiers">
+          <li class="tier"><span class="tier-range">Hookahs 1–10</span><span class="tier-rate">$100<small> each</small></span></li>
+          <li class="tier"><span class="tier-range">Hookahs 11–20</span><span class="tier-rate">$80<small> each</small></span></li>
+          <li class="tier"><span class="tier-range">Hookahs 21+</span><span class="tier-rate">$70<small> each</small></span></li>
+        </ul>
+        <ul class="rates">
+          <li><span>On-site service</span><b>4 hours</b></li>
+          <li><span>Travel within 25 mi</span><b class="ok">Free</b></li>
+          <li><span>Holiday date</span><b>+$200</b></li>
+          <li><span>25 – 50 mi</span><b>+$50</b></li>
+          <li><span>Same-day booking</span><b>+$200</b></li>
+          <li><span>50 – 100 mi</span><b>+$100</b></li>
+        </ul>
+        <p class="fineprint">Each tier applies only to the hookahs inside it, so 20 hookahs is $1,000 + $800 = $1,800. Holiday and same-day fees apply to catering only.</p>
+      </div>
+
+      <div data-explore-panel="delivery" hidden>
+        <ul class="rates">
+          <li><span>Per hookah, any quantity</span><b>$60</b></li>
+          <li><span>Within 25 mi</span><b class="ok">Free</b></li>
+          <li><span>Holiday or same-day</span><b>No extra fee</b></li>
+          <li><span>25 – 50 mi</span><b>+$50</b></li>
+          <li><span>Arrives</span><b>Lit &amp; ready</b></li>
+          <li><span>50 – 100 mi</span><b>+$100</b></li>
+        </ul>
+        <p class="fineprint">Over 100 miles is outside our delivery area — call us and we'll see what we can do. Enter your address when you book and we'll tell you straight away whether a travel fee applies.</p>
+      </div>
+
+      <a class="btn btn-gold btn-lg explorer-cta" id="explore-book" href="#builder"><span id="explore-book-label">Book 10 hookahs</span> <svg aria-hidden="true"><use href="#icon-arrow"></use></svg></a>
     </div>
   </div>
 </section>
@@ -271,249 +367,250 @@
 <section class="section" id="builder">
   <div class="wrap">
     <header class="section-head reveal">
-      <p class="eyebrow">Build your night</p>
-      <h2>Your package, your price</h2>
-      <p class="section-sub">Four quick steps. Your estimate updates as you go, and nothing is charged online — we'll reach out to confirm details and take payment.</p>
+      <h2>Book your night.</h2>
+      <p class="section-sub">Three quick steps, about a minute. Your estimate updates as you go, and nothing is charged online — we'll call to confirm.</p>
     </header>
 
     <div class="builder">
       <!-- ---------- form column ---------- -->
       <form class="builder-form" id="booking-form" novalidate>
         <ol class="stepper" id="stepper" aria-label="Booking progress">
-          <li><button type="button" data-goto="1" aria-current="step"><span class="step-dot">1</span><span class="step-label">Service</span></button></li>
-          <li><button type="button" data-goto="2"><span class="step-dot">2</span><span class="step-label">Details</span></button></li>
-          <li><button type="button" data-goto="3"><span class="step-dot">3</span><span class="step-label">Flavors</span></button></li>
-          <li><button type="button" data-goto="4"><span class="step-dot">4</span><span class="step-label">Contact</span></button></li>
+          <li class="is-current"><button type="button" data-goto="1" aria-current="step"><span class="step-num"><b>1</b><svg aria-hidden="true"><use href="#icon-check"></use></svg></span><span class="step-label">Setup</span></button></li>
+          <li><button type="button" data-goto="2"><span class="step-num"><b>2</b><svg aria-hidden="true"><use href="#icon-check"></use></svg></span><span class="step-label">When &amp; where</span></button></li>
+          <li><button type="button" data-goto="3"><span class="step-num"><b>3</b><svg aria-hidden="true"><use href="#icon-check"></use></svg></span><span class="step-label">Your details</span></button></li>
         </ol>
 
-        <!-- Step 1 -->
-        <fieldset class="step is-active" data-step="1">
-          <legend class="step-title">What do you need?</legend>
+        <div class="steps" id="steps">
+          <!-- Step 1 -->
+          <fieldset class="step is-active" data-step="1">
+            <legend class="step-title"><strong>Your setup.</strong> <span>What should we bring?</span></legend>
 
-          <div class="choice-grid" role="radiogroup" aria-label="Service type">
-            <label class="choice">
-              <input type="radio" name="service" value="catering" checked>
-              <span class="choice-inner">
-                <span class="choice-icon"><svg aria-hidden="true"><use href="#icon-crown"></use></svg></span>
-                <span class="choice-name">Catering</span>
-                <span class="choice-desc">We set up and run the hookahs on site for 4 hours.</span>
-                <span class="choice-tag">From $100 / hookah</span>
-              </span>
+            <div class="choice-grid" role="radiogroup" aria-label="Service type">
+              <label class="choice">
+                <input type="radio" name="service" value="catering" checked>
+                <span class="choice-inner">
+                  <span class="choice-radio" aria-hidden="true"></span>
+                  <span class="choice-icon"><svg aria-hidden="true"><use href="#icon-crown"></use></svg></span>
+                  <span class="choice-name">Catering</span>
+                  <span class="choice-desc">We set up and run the hookahs on site for 4 hours.</span>
+                  <span class="choice-tag">From $100 / hookah</span>
+                </span>
+              </label>
+              <label class="choice">
+                <input type="radio" name="service" value="delivery">
+                <span class="choice-inner">
+                  <span class="choice-radio" aria-hidden="true"></span>
+                  <span class="choice-icon"><svg aria-hidden="true"><use href="#icon-truck"></use></svg></span>
+                  <span class="choice-name">Delivery</span>
+                  <span class="choice-desc">Ready-to-smoke hookahs dropped at your door. Free locally.</span>
+                  <span class="choice-tag">$60 / hookah flat</span>
+                </span>
+              </label>
+            </div>
+
+            <div class="field">
+              <label class="field-label" for="qty">How many hookahs?</label>
+              <div class="qty-row">
+                <button type="button" class="qty-btn" id="qty-minus" aria-label="Decrease quantity">−</button>
+                <input type="number" id="qty" name="quantity" min="1" max="200" step="1" value="10" inputmode="numeric" aria-describedby="qty-help">
+                <button type="button" class="qty-btn" id="qty-plus" aria-label="Increase quantity">+</button>
+              </div>
+              <div class="qty-presets" role="group" aria-label="Quick quantities">
+                <button type="button" data-qty="5">5</button>
+                <button type="button" data-qty="10">10</button>
+                <button type="button" data-qty="15">15</button>
+                <button type="button" data-qty="20">20</button>
+                <button type="button" data-qty="30">30</button>
+              </div>
+              <p class="field-help" id="qty-help"></p>
+            </div>
+
+            <details class="disclosure" id="flavor-disclosure" data-smooth>
+              <summary>
+                <svg class="disclosure-lead" aria-hidden="true"><use href="#icon-leaf"></use></svg>
+                <span>Add a flavor request <span class="field-optional">optional</span></span>
+                <span class="disclosure-icon" aria-hidden="true"><svg><use href="#icon-plus"></use></svg></span>
+              </summary>
+              <div class="disclosure-body">
+                <div class="disclosure-inner">
+                  <p class="disclosure-note">Specialty tobacco is priced separately — the cost varies with the quantity requested and the current market price, so it is <em>not</em> included in the estimate. We'll confirm the exact price when we contact you.</p>
+
+                  <div class="field">
+                    <span class="field-label">Popular picks <span class="field-optional">tap to add</span></span>
+                    <div class="chips" id="flavor-chips" role="group" aria-label="Popular flavors">
+                      <button type="button" data-chip="Double Apple">Double Apple</button>
+                      <button type="button" data-chip="Mint">Mint</button>
+                      <button type="button" data-chip="Blueberry Mint">Blueberry Mint</button>
+                      <button type="button" data-chip="Love 66">Love 66</button>
+                      <button type="button" data-chip="White Peach">White Peach</button>
+                      <button type="button" data-chip="Watermelon">Watermelon</button>
+                      <button type="button" data-chip="Grape">Grape</button>
+                      <button type="button" data-chip="Lemon Mint">Lemon Mint</button>
+                      <button type="button" data-chip="Al Fakher">Al Fakher</button>
+                      <button type="button" data-chip="Fumari">Fumari</button>
+                      <button type="button" data-chip="Adalya">Adalya</button>
+                      <button type="button" data-chip="Tangiers">Tangiers</button>
+                    </div>
+                  </div>
+
+                  <div class="field">
+                    <label class="field-label" for="tobacco">Tobacco request</label>
+                    <textarea id="tobacco" name="tobacco" rows="3" maxlength="125"
+                              placeholder="e.g. 4 hookahs on Tangiers Cane Mint, the rest dealer's choice"></textarea>
+                    <div class="field-foot">
+                      <p class="field-help">Brand, flavor, mixes, or how many hookahs should run it. Priced on request.</p>
+                      <span class="char-count" id="tobacco-count" aria-live="polite">0/125</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </details>
+
+            <div class="step-nav">
+              <span></span>
+              <button type="button" class="btn btn-gold" data-next>Continue <svg aria-hidden="true"><use href="#icon-arrow"></use></svg></button>
+            </div>
+          </fieldset>
+
+          <!-- Step 2 -->
+          <fieldset class="step" data-step="2">
+            <legend class="step-title"><strong>When &amp; where.</strong> <span>Tell us about the night.</span></legend>
+
+            <div class="field-row">
+              <div class="field">
+                <label class="field-label" for="event-date">Event date</label>
+                <input type="date" id="event-date" name="date" required>
+                <p class="field-help" id="date-help">Pick the date of your event.</p>
+              </div>
+              <div class="field">
+                <label class="field-label" for="event-time">Start time</label>
+                <input type="time" id="event-time" name="time" value="19:00" required>
+                <p class="field-help" data-service="catering">4-hour service window begins here.</p>
+                <p class="field-help" data-service="delivery" hidden>Approximate drop-off time.</p>
+              </div>
+            </div>
+
+            <div class="date-flags" id="date-flags" aria-live="polite"></div>
+
+            <div class="field field-address">
+              <label class="field-label" for="addr-street">
+                <span data-service="catering">Event address</span>
+                <span data-service="delivery" hidden>Delivery address</span>
+              </label>
+              <div class="autocomplete">
+                <input type="text" id="addr-street" name="street" placeholder="Start typing your address…"
+                       autocomplete="street-address" role="combobox" aria-expanded="false"
+                       aria-autocomplete="list" aria-controls="addr-suggestions">
+                <ul class="autocomplete-list" id="addr-suggestions" role="listbox" hidden></ul>
+              </div>
+              <p class="field-help" id="addr-help">Street address, apartment or suite number.</p>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label class="field-label" for="addr-city">City</label>
+                <input type="text" id="addr-city" name="city" placeholder="Los Angeles" autocomplete="address-level2">
+              </div>
+              <div class="field field-zip">
+                <label class="field-label" for="addr-zip">ZIP code</label>
+                <input type="text" id="addr-zip" name="zip" placeholder="ZIP code" inputmode="numeric" maxlength="5" autocomplete="postal-code" aria-describedby="zip-result">
+              </div>
+            </div>
+
+            <div class="zip-result" id="zip-result" aria-live="polite"></div>
+
+            <div class="field">
+              <label class="field-label" for="notes">Anything else? <span class="field-optional">optional</span></label>
+              <textarea id="notes" name="notes" rows="3" maxlength="250"
+                        placeholder="Occasion, venue type, indoor or outdoor, parking notes, extended hours…"></textarea>
+              <div class="field-foot">
+                <p class="field-help">Anything that helps us plan the night.</p>
+                <span class="char-count" id="notes-count" aria-live="polite">0/250</span>
+              </div>
+            </div>
+
+            <div class="step-nav">
+              <button type="button" class="btn btn-ghost" data-prev>Back</button>
+              <button type="button" class="btn btn-gold" data-next>Continue <svg aria-hidden="true"><use href="#icon-arrow"></use></svg></button>
+            </div>
+          </fieldset>
+
+          <!-- Step 3 -->
+          <fieldset class="step" data-step="3">
+            <legend class="step-title"><strong>Your details.</strong> <span>Where should we reach you?</span></legend>
+
+            <div class="field-row">
+              <div class="field">
+                <label class="field-label" for="name">Full name</label>
+                <input type="text" id="name" name="name" placeholder="Jane Doe" autocomplete="name" required>
+              </div>
+              <div class="field">
+                <label class="field-label" for="phone">Phone</label>
+                <input type="tel" id="phone" name="phone" placeholder="(818) 555-0123" autocomplete="tel" inputmode="tel" required>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="field-label" for="email">Email</label>
+              <input type="email" id="email" name="email" placeholder="you@email.com" autocomplete="email" required>
+              <p class="field-help">So we have your booking in writing — we'll call to confirm the details.</p>
+            </div>
+
+            <div class="field">
+              <span class="field-label">Best way to reach you</span>
+              <div class="chips chips-select" role="radiogroup" aria-label="Preferred contact method">
+                <label><input type="radio" name="contactPref" value="Text" checked><span>Text</span></label>
+                <label><input type="radio" name="contactPref" value="Call"><span>Call</span></label>
+                <label><input type="radio" name="contactPref" value="Email"><span>Email</span></label>
+              </div>
+            </div>
+
+            <details class="disclosure disclosure-link" id="promo-field" data-smooth>
+              <summary>
+                <span>Have a promo code?</span>
+                <span class="disclosure-icon" aria-hidden="true"><svg><use href="#icon-plus"></use></svg></span>
+              </summary>
+              <div class="disclosure-body">
+                <div class="disclosure-inner">
+                  <label class="sr-only" for="promo">Promo code</label>
+                  <div class="promo-row">
+                    <input type="text" id="promo" name="promo" placeholder="Enter code"
+                           autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="32">
+                    <button type="button" class="btn btn-ghost" id="promo-apply">Apply</button>
+                  </div>
+                  <div class="promo-status" id="promo-status" aria-live="polite"></div>
+                </div>
+              </div>
+            </details>
+
+            <label class="checkbox">
+              <input type="checkbox" id="age-check" name="age" required>
+              <span>I confirm I am 21 or older and that all guests using the hookahs will be 21+.</span>
             </label>
-            <label class="choice">
-              <input type="radio" name="service" value="delivery">
-              <span class="choice-inner">
-                <span class="choice-icon"><svg aria-hidden="true"><use href="#icon-truck"></use></svg></span>
-                <span class="choice-name">Delivery</span>
-                <span class="choice-desc">Ready-to-smoke hookahs dropped at your door.</span>
-                <span class="choice-tag">$60 / hookah flat</span>
-              </span>
-            </label>
-          </div>
 
-          <div class="notice notice-info" data-service="catering">
-            <svg aria-hidden="true"><use href="#icon-clock"></use></svg>
-            <p><strong>Catering runs 4 hours.</strong> An attendant stays on site for the full session managing coals and bowls. Need longer? Add it in the notes and we'll quote the extension.</p>
-          </div>
-          <div class="notice notice-info" data-service="delivery" hidden>
-            <svg aria-hidden="true"><use href="#icon-pin"></use></svg>
-            <p><strong>Delivery is free across our local service area.</strong> We travel further too — if your address falls outside it, the travel fee is shown before you submit.</p>
-          </div>
+            <!-- honeypot: Web3Forms flags any submission that fills "botcheck" -->
+            <div class="hp" aria-hidden="true"><label>Leave this empty<input type="text" name="botcheck" tabindex="-1" autocomplete="off"></label></div>
 
-          <div class="step-nav">
-            <span></span>
-            <button type="button" class="btn btn-gold" data-next>Continue <svg aria-hidden="true"><use href="#icon-arrow"></use></svg></button>
-          </div>
-        </fieldset>
-
-        <!-- Step 2 -->
-        <fieldset class="step" data-step="2">
-          <legend class="step-title">Event details</legend>
-
-          <div class="field">
-            <label class="field-label" for="qty">How many hookahs?</label>
-            <div class="qty-row">
-              <button type="button" class="qty-btn" id="qty-minus" aria-label="Decrease quantity">−</button>
-              <input type="number" id="qty" name="quantity" min="1" max="200" step="1" value="10" inputmode="numeric" aria-describedby="qty-help">
-              <button type="button" class="qty-btn" id="qty-plus" aria-label="Increase quantity">+</button>
+            <div class="step-nav">
+              <button type="button" class="btn btn-ghost" data-prev>Back</button>
+              <button type="submit" class="btn btn-gold btn-submit" id="submit-btn">
+                <span class="btn-label">Send request</span>
+                <svg class="btn-arrow" aria-hidden="true"><use href="#icon-arrow"></use></svg>
+                <span class="spinner" aria-hidden="true"></span>
+              </button>
             </div>
-            <div class="qty-presets" role="group" aria-label="Quick quantities">
-              <button type="button" data-qty="5">5</button>
-              <button type="button" data-qty="10">10</button>
-              <button type="button" data-qty="15">15</button>
-              <button type="button" data-qty="20">20</button>
-              <button type="button" data-qty="30">30</button>
-            </div>
-            <p class="field-help" id="qty-help"></p>
-          </div>
+            <p class="fineprint center">No payment is taken on this site. You'll get a confirmation from us before anything is charged.</p>
+          </fieldset>
+        </div>
 
-          <div class="field-row">
-            <div class="field">
-              <label class="field-label" for="event-date">Event date</label>
-              <input type="date" id="event-date" name="date" required>
-              <p class="field-help" id="date-help">Pick the date of your event.</p>
-            </div>
-            <div class="field">
-              <label class="field-label" for="event-time">Start time</label>
-              <input type="time" id="event-time" name="time" value="19:00" required>
-              <p class="field-help" data-service="catering">4-hour service window begins here.</p>
-              <p class="field-help" data-service="delivery" hidden>Approximate drop-off time.</p>
-            </div>
-          </div>
-
-          <div class="date-flags" id="date-flags" aria-live="polite"></div>
-
-          <div class="field field-address">
-            <label class="field-label" for="addr-street">
-              <span data-service="catering">Event address</span>
-              <span data-service="delivery" hidden>Delivery address</span>
-            </label>
-            <div class="autocomplete">
-              <input type="text" id="addr-street" name="street" placeholder="Start typing your address…"
-                     autocomplete="street-address" role="combobox" aria-expanded="false"
-                     aria-autocomplete="list" aria-controls="addr-suggestions">
-              <ul class="autocomplete-list" id="addr-suggestions" role="listbox" hidden></ul>
-            </div>
-            <p class="field-help" id="addr-help">Street address, apartment or suite number.</p>
-          </div>
-
-          <div class="field-row">
-            <div class="field">
-              <label class="field-label" for="addr-city">City</label>
-              <input type="text" id="addr-city" name="city" placeholder="Los Angeles" autocomplete="address-level2">
-            </div>
-            <div class="field field-zip">
-              <label class="field-label" for="addr-zip">ZIP code</label>
-              <input type="text" id="addr-zip" name="zip" placeholder="ZIP code" inputmode="numeric" maxlength="5" autocomplete="postal-code" aria-describedby="zip-result">
-            </div>
-          </div>
-
-          <div class="zip-result" id="zip-result" aria-live="polite"></div>
-
-          <div class="step-nav">
-            <button type="button" class="btn btn-ghost" data-prev>Back</button>
-            <button type="button" class="btn btn-gold" data-next>Continue <svg aria-hidden="true"><use href="#icon-arrow"></use></svg></button>
-          </div>
-        </fieldset>
-
-        <!-- Step 3 -->
-        <fieldset class="step" data-step="3">
-          <legend class="step-title">Flavors &amp; special requests</legend>
-
-          <div class="notice notice-gold">
-            <svg aria-hidden="true"><use href="#icon-leaf"></use></svg>
-            <p><strong>Requesting a specific tobacco?</strong> Tell us the brand or flavor below. Specialty tobacco is priced separately — the cost varies with the quantity requested and the current market price, so it is <em>not</em> included in the estimate. We'll confirm the exact price when we contact you.</p>
-          </div>
-
-          <div class="field">
-            <span class="field-label">Popular picks <span class="field-optional">tap to add</span></span>
-            <div class="chips" id="flavor-chips" role="group" aria-label="Popular flavors">
-              <button type="button" data-chip="Double Apple">Double Apple</button>
-              <button type="button" data-chip="Mint">Mint</button>
-              <button type="button" data-chip="Blueberry Mint">Blueberry Mint</button>
-              <button type="button" data-chip="Love 66">Love 66</button>
-              <button type="button" data-chip="White Peach">White Peach</button>
-              <button type="button" data-chip="Watermelon">Watermelon</button>
-              <button type="button" data-chip="Grape">Grape</button>
-              <button type="button" data-chip="Lemon Mint">Lemon Mint</button>
-              <button type="button" data-chip="Al Fakher">Al Fakher</button>
-              <button type="button" data-chip="Fumari">Fumari</button>
-              <button type="button" data-chip="Adalya">Adalya</button>
-              <button type="button" data-chip="Tangiers">Tangiers</button>
-            </div>
-          </div>
-
-          <div class="field">
-            <label class="field-label" for="tobacco">Tobacco request <span class="field-optional">optional</span></label>
-            <textarea id="tobacco" name="tobacco" rows="3" maxlength="125"
-                      placeholder="e.g. 4 hookahs on Tangiers Cane Mint, the rest dealer's choice"></textarea>
-            <div class="field-foot">
-              <p class="field-help">Brand, flavor, mixes, or how many hookahs should run it. Priced on request.</p>
-              <span class="char-count" id="tobacco-count" aria-live="polite">0/125</span>
-            </div>
-          </div>
-
-          <div class="field">
-            <label class="field-label" for="notes">Anything else? <span class="field-optional">optional</span></label>
-            <textarea id="notes" name="notes" rows="3" maxlength="250"
-                      placeholder="Occasion, venue type, indoor or outdoor, parking notes, extended hours…"></textarea>
-            <div class="field-foot">
-              <p class="field-help">Anything that helps us plan the night.</p>
-              <span class="char-count" id="notes-count" aria-live="polite">0/250</span>
-            </div>
-          </div>
-
-          <div class="step-nav">
-            <button type="button" class="btn btn-ghost" data-prev>Back</button>
-            <button type="button" class="btn btn-gold" data-next>Continue <svg aria-hidden="true"><use href="#icon-arrow"></use></svg></button>
-          </div>
-        </fieldset>
-
-        <!-- Step 4 -->
-        <fieldset class="step" data-step="4">
-          <legend class="step-title">Where do we send the quote?</legend>
-
-          <div class="field-row">
-            <div class="field">
-              <label class="field-label" for="name">Full name</label>
-              <input type="text" id="name" name="name" placeholder="Jane Doe" autocomplete="name" required>
-            </div>
-            <div class="field">
-              <label class="field-label" for="phone">Phone</label>
-              <input type="tel" id="phone" name="phone" placeholder="(818) 555-0123" autocomplete="tel" inputmode="tel" required>
-            </div>
-          </div>
-
-          <div class="field">
-            <label class="field-label" for="email">Email</label>
-            <input type="email" id="email" name="email" placeholder="you@email.com" autocomplete="email" required>
-            <p class="field-help">So we have your booking in writing — we'll call to confirm the details.</p>
-          </div>
-
-          <div class="field">
-            <span class="field-label">Best way to reach you</span>
-            <div class="chips chips-select" role="radiogroup" aria-label="Preferred contact method">
-              <label><input type="radio" name="contactPref" value="Text" checked><span>Text</span></label>
-              <label><input type="radio" name="contactPref" value="Call"><span>Call</span></label>
-              <label><input type="radio" name="contactPref" value="Email"><span>Email</span></label>
-            </div>
-          </div>
-
-          <div class="field" id="promo-field">
-            <label class="field-label" for="promo">Promo code <span class="field-optional">optional</span></label>
-            <div class="promo-row">
-              <input type="text" id="promo" name="promo" placeholder="Enter code"
-                     autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="32">
-              <button type="button" class="btn btn-outline" id="promo-apply">Apply</button>
-            </div>
-            <div class="promo-status" id="promo-status" aria-live="polite"></div>
-          </div>
-
-          <label class="checkbox">
-            <input type="checkbox" id="age-check" name="age" required>
-            <span>I confirm I am 21 or older and that all guests using the hookahs will be 21+.</span>
-          </label>
-
-          <!-- honeypot: Web3Forms flags any submission that fills "botcheck" -->
-          <div class="hp" aria-hidden="true"><label>Leave this empty<input type="text" name="botcheck" tabindex="-1" autocomplete="off"></label></div>
-
-          <div class="form-error" id="form-error" role="alert" hidden></div>
-
-          <div class="step-nav">
-            <button type="button" class="btn btn-ghost" data-prev>Back</button>
-            <button type="submit" class="btn btn-gold btn-submit" id="submit-btn">
-              <span class="btn-label">Submit</span>
-              <svg class="btn-arrow" aria-hidden="true"><use href="#icon-arrow"></use></svg>
-              <span class="spinner" aria-hidden="true"></span>
-            </button>
-          </div>
-          <p class="fineprint center">No payment is taken on this site. You'll get a confirmation from us before anything is charged.</p>
-        </fieldset>
+        <!-- Moved into whichever step needs it, just above that step's buttons. -->
+        <div class="form-error" id="form-error" role="alert" hidden></div>
       </form>
 
-      <!-- ---------- summary column ---------- -->
+      <!-- ---------- summary column (a bottom sheet on phones) ---------- -->
       <aside class="summary" id="summary" aria-label="Estimate summary">
         <div class="summary-card">
+          <button type="button" class="summary-grip" id="summary-close" aria-label="Hide estimate"></button>
           <div class="summary-head">
             <svg class="summary-badge" aria-hidden="true"><use href="#icon-badge"></use></svg>
             <div>
@@ -525,8 +622,8 @@
           <dl class="summary-lines" id="summary-lines"></dl>
 
           <div class="summary-total">
-            <span>Estimated total</span>
-            <strong id="summary-total" aria-live="polite">$1,000</strong>
+            <span class="summary-total-label">Estimated total</span>
+            <strong id="summary-total" aria-hidden="true">$1,000</strong>
           </div>
 
           <p class="summary-foot" id="summary-foot">Tobacco requests and any add-ons are quoted separately.</p>
@@ -535,23 +632,32 @@
     </div>
   </div>
 
+  <!-- Lives outside the estimate so it still speaks while the phone sheet is closed. -->
+  <span class="sr-only" id="summary-total-live" aria-live="polite"></span>
+
   <!-- mobile sticky total bar -->
   <div class="total-bar" id="total-bar" hidden>
     <div class="total-bar-inner">
       <button type="button" class="total-bar-info" id="total-bar-toggle" aria-expanded="false" aria-controls="summary">
         <span class="total-bar-label" id="total-bar-label">Catering · 10 hookahs</span>
-        <span class="total-bar-amount" id="total-bar-amount">$1,000</span>
+        <span class="total-bar-amount"><span id="total-bar-amount">$1,000</span><svg class="total-bar-caret" aria-hidden="true"><use href="#icon-chevron"></use></svg></span>
       </button>
       <button type="button" class="btn btn-gold" id="total-bar-cta">Continue</button>
     </div>
   </div>
+  <div class="sheet-backdrop" id="sheet-backdrop" hidden></div>
 </section>
 
 <!-- ============ Success ============ -->
 <div class="success-overlay" id="success" hidden>
   <div class="success-card" role="dialog" aria-modal="true" aria-labelledby="success-title">
     <button type="button" class="success-close" id="success-close" aria-label="Close">×</button>
-    <div class="success-mark"><svg aria-hidden="true"><use href="#icon-check"></use></svg></div>
+    <div class="success-mark" id="success-mark">
+      <svg viewBox="0 0 52 52" aria-hidden="true">
+        <circle class="success-ring" cx="26" cy="26" r="24" pathLength="1"/>
+        <path class="success-tick" d="M15 27l7.5 7.5L38 19" pathLength="1"/>
+      </svg>
+    </div>
     <h2 id="success-title">Request sent</h2>
     <p class="success-sub" id="success-sub">We've got it. Hov will reach out shortly to lock in your date and confirm the final total.</p>
     <div class="invoice" id="invoice"></div>
@@ -559,91 +665,50 @@
     <!-- Shown only if the automatic send fails, so a booking is never lost. -->
     <div class="success-actions" id="success-actions" hidden>
       <a class="btn btn-gold" id="success-email" href="#">Email us a copy</a>
-      <button type="button" class="btn btn-outline" id="success-copy">Copy details</button>
+      <button type="button" class="btn btn-ghost" id="success-copy">Copy details</button>
     </div>
     <p class="fineprint center">Reference <span id="success-ref">—</span> · Questions? Call <a href="tel:+18188078008">818-807-8008</a></p>
   </div>
 </div>
 
-<!-- ============ Flavors ============ -->
-<section class="section section-alt" id="flavors">
-  <div class="wrap">
-    <div class="flavor-layout">
-      <div class="reveal">
-        <p class="eyebrow">Tobacco</p>
-        <h2>Ask for exactly what you want</h2>
-        <p class="section-sub left">We stock the crowd-pleasers and we'll chase down the specialty stuff. If you've got a brand, a flavor, or a mix you're loyal to, put it in your booking request and we'll source it.</p>
-        <div class="notice notice-gold">
-          <svg aria-hidden="true"><use href="#icon-leaf"></use></svg>
-          <p><strong>Pricing on request.</strong> Specialty tobacco isn't a fixed line item — the price depends on how much you need and what the market's doing that week. We'll give you the exact number when we call to confirm your booking.</p>
-        </div>
-        <a class="btn btn-gold" href="#builder">Add a request to my booking</a>
-      </div>
-      <ul class="flavor-cloud reveal" aria-label="Example flavors we carry">
-        <li>Double Apple</li><li>Love 66</li><li>Blueberry Mint</li><li>White Peach</li>
-        <li>Watermelon</li><li>Lemon Mint</li><li>Grape</li><li>Ambrosia</li>
-        <li>Al Fakher</li><li>Fumari</li><li>Adalya</li><li>Tangiers</li>
-        <li>Starbuzz</li><li>Trifecta</li><li>Mighty Freeze</li><li>Cane Mint</li>
-      </ul>
-    </div>
-  </div>
-</section>
-
-<!-- ============ How it works ============ -->
-<section class="section" id="how">
-  <div class="wrap">
-    <header class="section-head reveal">
-      <p class="eyebrow">Simple as it gets</p>
-      <h2>How booking works</h2>
-    </header>
-    <ol class="steps-list">
-      <li class="reveal"><span class="steps-num">01</span><h3>Build your package</h3><p>Pick catering or delivery, set your hookah count and date, and watch the estimate update live.</p></li>
-      <li class="reveal"><span class="steps-num">02</span><h3>Send the request</h3><p>Your details land with us instantly — including a full itemized breakdown of your quote.</p></li>
-      <li class="reveal"><span class="steps-num">03</span><h3>We confirm</h3><p>Hov reaches out to lock the date, price out any specialty tobacco, and sort payment directly.</p></li>
-      <li class="reveal"><span class="steps-num">04</span><h3>We show up</h3><p>Setup, service, breakdown. All you have to do is enjoy the night.</p></li>
-    </ol>
-  </div>
-</section>
-
 <!-- ============ FAQ ============ -->
-<section class="section section-alt" id="faq">
+<section class="section" id="faq">
   <div class="wrap wrap-narrow">
     <header class="section-head reveal">
-      <p class="eyebrow">Good to know</p>
-      <h2>Frequently asked</h2>
+      <h2>Questions? Answers.</h2>
     </header>
-    <div class="faq">
-      <details class="reveal" open>
-        <summary>How long does catering last?</summary>
-        <p>Standard catering service is <strong>4 hours</strong> from your listed start time. An attendant stays on site the whole time managing coals, changing bowls and keeping every hookah running. Need a longer session? Mention it in the notes and we'll quote the extension when we call.</p>
+    <div class="faq reveal">
+      <details data-smooth>
+        <summary>How long does catering last?<span class="faq-icon" aria-hidden="true"><svg><use href="#icon-plus"></use></svg></span></summary>
+        <div class="faq-a"><p>Standard catering service is <strong>4 hours</strong> from your listed start time. An attendant stays on site the whole time managing coals, changing bowls and keeping every hookah running. Need a longer session? Mention it in the notes and we'll quote the extension when we call.</p></div>
       </details>
-      <details class="reveal">
-        <summary>Why did my estimate go up by $200?</summary>
-        <p>Two catering surcharges can apply: a <strong>$200 holiday fee</strong> if your event falls on a recognized holiday, and a <strong>$200 same-day fee</strong> for bookings made for today. Both are shown as separate lines in your estimate so you always know what you're looking at. Neither applies to delivery orders.</p>
+      <details data-smooth>
+        <summary>Why did my estimate go up by $200?<span class="faq-icon" aria-hidden="true"><svg><use href="#icon-plus"></use></svg></span></summary>
+        <div class="faq-a"><p>Two catering surcharges can apply: a <strong>$200 holiday fee</strong> if your event falls on a recognized holiday, and a <strong>$200 same-day fee</strong> for bookings made for today. Both are shown as separate lines in your estimate so you always know what you're looking at. Neither applies to delivery orders.</p></div>
       </details>
-      <details class="reveal">
-        <summary>How is the catering price calculated?</summary>
-        <p>It's tiered. The first 10 hookahs are $100 each, hookahs 11 through 20 are $80 each, and everything from 21 up is $70 each. So 10 hookahs is $1,000, 20 hookahs is $1,800, and 25 hookahs is $2,150.</p>
+      <details data-smooth>
+        <summary>How is the catering price calculated?<span class="faq-icon" aria-hidden="true"><svg><use href="#icon-plus"></use></svg></span></summary>
+        <div class="faq-a"><p>It's tiered. The first 10 hookahs are $100 each, hookahs 11 through 20 are $80 each, and everything from 21 up is $70 each. So 10 hookahs is $1,000, 20 hookahs is $1,800, and 25 hookahs is $2,150.</p></div>
       </details>
-      <details class="reveal">
-        <summary>How far do you deliver?</summary>
-        <p>Delivery is <strong>free across our local service area</strong>. Further out, a travel fee of $50 or $100 applies depending on the distance. Enter your address in the booking builder and it'll tell you exactly which applies — or give us a call at 818-807-8008.</p>
+      <details data-smooth>
+        <summary>How far do you deliver?<span class="faq-icon" aria-hidden="true"><svg><use href="#icon-plus"></use></svg></span></summary>
+        <div class="faq-a"><p>Delivery is <strong>free across our local service area</strong>. Further out, a travel fee of $50 or $100 applies depending on the distance. Enter your address in the booking form and it'll tell you exactly which applies — or give us a call at 818-807-8008.</p></div>
       </details>
-      <details class="reveal">
-        <summary>Can I request a specific tobacco brand or flavor?</summary>
-        <p>Absolutely. Add it in the flavors step of the booking builder. Specialty tobacco is priced separately based on the amount requested and current market price — we'll confirm the exact cost when we contact you.</p>
+      <details data-smooth>
+        <summary>Can I request a specific tobacco brand or flavor?<span class="faq-icon" aria-hidden="true"><svg><use href="#icon-plus"></use></svg></span></summary>
+        <div class="faq-a"><p>Absolutely. In the first step of the booking form, tap <strong>Add a flavor request</strong>. Specialty tobacco is priced separately based on the amount requested and current market price — we'll confirm the exact cost when we contact you.</p></div>
       </details>
-      <details class="reveal">
-        <summary>Do I pay on the website?</summary>
-        <p>No. This site only sends us your request and estimate. Nothing is charged online — we contact you to confirm every detail, then handle payment directly.</p>
+      <details data-smooth>
+        <summary>Do I pay on the website?<span class="faq-icon" aria-hidden="true"><svg><use href="#icon-plus"></use></svg></span></summary>
+        <div class="faq-a"><p>No. This site only sends us your request and estimate. Nothing is charged online — we contact you to confirm every detail, then handle payment directly.</p></div>
       </details>
-      <details class="reveal">
-        <summary>Is the estimate the final price?</summary>
-        <p>It's an accurate estimate of the standard rates and fees listed on this page. The final total is confirmed when we speak — specialty tobacco, extended hours or unusual venue requirements are quoted at that point.</p>
+      <details data-smooth>
+        <summary>Is the estimate the final price?<span class="faq-icon" aria-hidden="true"><svg><use href="#icon-plus"></use></svg></span></summary>
+        <div class="faq-a"><p>It's an accurate estimate of the standard rates and fees listed on this page. The final total is confirmed when we speak — specialty tobacco, extended hours or unusual venue requirements are quoted at that point.</p></div>
       </details>
-      <details class="reveal">
-        <summary>Is there an age requirement?</summary>
-        <p>Yes. Hookah is a tobacco product — everyone using our hookahs must be <strong>21 or older</strong>, and we may check ID on arrival.</p>
+      <details data-smooth>
+        <summary>Is there an age requirement?<span class="faq-icon" aria-hidden="true"><svg><use href="#icon-plus"></use></svg></span></summary>
+        <div class="faq-a"><p>Yes. Hookah is a tobacco product — everyone using our hookahs must be <strong>21 or older</strong>, and we may check ID on arrival.</p></div>
       </details>
     </div>
   </div>
@@ -652,11 +717,11 @@
 <!-- ============ CTA ============ -->
 <section class="cta-band">
   <div class="wrap cta-inner reveal">
-    <h2>Got a date in mind?</h2>
-    <p>Lock it in before someone else does. Takes about a minute.</p>
-    <div class="hero-actions">
-      <a class="btn btn-gold btn-lg" href="#builder">Start my booking <svg aria-hidden="true"><use href="#icon-arrow"></use></svg></a>
-      <a class="btn btn-outline btn-lg" href="tel:+18188078008"><svg aria-hidden="true"><use href="#icon-phone"></use></svg> 818-807-8008</a>
+    <h2>Got a <span class="rotator" aria-hidden="true"><span class="is-on">birthday</span><span>wedding</span><span>graduation</span><span>house party</span><span>bachelor party</span><span>corporate event</span><span>game night</span></span><span class="sr-only">celebration</span> coming up?</h2>
+    <p>Lock in your date before someone else does. It takes about a minute.</p>
+    <div class="cta-actions">
+      <a class="btn btn-gold btn-lg" href="#builder">Start my booking</a>
+      <a class="link-more" href="tel:+18188078008">Or call 818-807-8008 <svg aria-hidden="true"><use href="#icon-chevron"></use></svg></a>
     </div>
   </div>
 </section>
@@ -670,7 +735,6 @@
       <svg class="footer-badge" aria-hidden="true"><use href="#icon-badge"></use></svg>
       <span class="brand-name">Hookah <em>by</em> Hov</span>
       <span class="brand-sub">Delivery <i>|</i> Catering <i>|</i> Events</span>
-      <p class="footer-est">Est. 2020 · Los Angeles, California</p>
     </div>
     <div class="footer-col">
       <h4>Book</h4>
@@ -687,8 +751,8 @@
     </div>
   </div>
   <div class="wrap footer-bottom">
-    <p>© <span id="year">2026</span> Hookah By Hov. All rights reserved.</p>
     <p class="footer-warning">21+ only. Hookah smoking involves tobacco and carries health risks, including exposure to carbon monoxide. Please enjoy responsibly.</p>
+    <p>© <span id="year">2026</span> Hookah By Hov. Est. 2020 · Los Angeles, California.</p>
   </div>
 </footer>
 
@@ -697,6 +761,7 @@
 <script src="assets/js/holidays.js"></script>
 <script src="assets/js/pricing.js"></script>
 <script src="assets/js/maps.js"></script>
+<script src="assets/js/motion.js"></script>
 <script src="assets/js/app.js"></script>
 </body>
 </html>
