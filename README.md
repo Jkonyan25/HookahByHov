@@ -227,6 +227,13 @@ npx http-server -p 8080 .
 To publish: drag the folder onto **Netlify Drop**, or push to GitHub and turn on
 **GitHub Pages**, or upload to any web host. There is nothing to compile.
 
+**After you change a CSS or JS file**, bump the `?v=` number on its tag in
+`index.html` (e.g. `styles.css?v=20261024` → `styles.css?v=20261101`). Browsers
+cache these files, and without a new number a returning visitor can get the new
+page with the old stylesheet — which is how icons end up huge or the layout
+breaks for a few minutes after an update. Every icon also carries its own
+`width`/`height`, so even then nothing balloons.
+
 ---
 
 ## Pricing, and where it lives

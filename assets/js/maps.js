@@ -207,7 +207,7 @@
           (p.text && p.text.toString()) || '';
         const secondary = (p.secondaryText && p.secondaryText.toString()) || '';
         return `<li id="addr-option-${i}" role="option" aria-selected="false" data-index="${i}">
-          <svg aria-hidden="true"><use href="#icon-pin"></use></svg>
+          <svg width="16" height="16" aria-hidden="true"><use href="#icon-pin"></use></svg>
           <span><b>${escapeHtml(main)}</b>${secondary ? `<small>${escapeHtml(secondary)}</small>` : ''}</span>
         </li>`;
       }).join('');
